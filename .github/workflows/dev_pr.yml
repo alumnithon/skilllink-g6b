@@ -1,0 +1,103 @@
+name: Development PR Checks
+
+on:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      # Cache optimization for faster builds
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: '5'
+
+      # Database configuration for dev environment
+      MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_MYSQL_ROOT_PASSWORD || 'dev_testpassword' }}
+      MYSQL_DATABASE: ${{ vars.DEV_MYSQL_DATABASE || 'skilllink_dev_db' }}
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+
+      # Application configuration for dev environment
+      JWT_SECRET: ${{ secrets.DEV_JWT_SECRET || 'dev_jwt_secret_for_ci' }}
+      FRONTEND_CORS_URL: ${{ vars.DEV_FRONTEND_CORS_URL || '*' }}
+      FRONTEND_REDIRECT_URL: ${{ vars.DEV_FRONTEND_REDIRECT_URL || 'http://localhost:5173' }}
+
+      # Email configuration for dev environment
+      EMAIL_HOST: ${{ vars.DEV_EMAIL_HOST || 'smtp.mailtrap.io' }}
+      EMAIL_PORT: ${{ vars.DEV_EMAIL_PORT || '587' }}
+      EMAIL_USER: ${{ secrets.DEV_EMAIL_USER || 'dev_test_user' }}
+      EMAIL_PASS: ${{ secrets.DEV_EMAIL_PASS || 'dev_test_password' }}
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_MYSQL_ROOT_PASSWORD || 'dev_testpassword' }}
+          MYSQL_DATABASE: ${{ vars.DEV_MYSQL_DATABASE || 'skilllink_dev_db' }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.7.1
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+          check-latest: false
+          cache-dependency-path: 'pom.xml'
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h"${{ env.MYSQL_HOST }}" -P${{ env.MYSQL_PORT }} -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 5
+          done
+
+      - name: Run Checkstyle
+        uses: nikitasavinov/checkstyle-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: 'github-pr-check'
+          tool_name: 'Checkstyle'
+          checkstyle_config: 'google_checks'
+          workdir: 'src/'
+
+      - name: Check Java code formatting with Google Java Format
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          args: '--set-exit-if-changed'
+          skip-commit: true
+
+      - name: Build and test with Maven
+        env:
+          DB_HOST: ${{ env.MYSQL_HOST }}
+          DB_PORT: ${{ env.MYSQL_PORT }}
+          DB_NAME: ${{ env.MYSQL_DATABASE }}
+          DB_USER: ${{ env.MYSQL_USER }}
+          DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          JWT_SECRET: ${{ env.JWT_SECRET }}
+          FRONTEND_CORS_URL: ${{ env.FRONTEND_CORS_URL }}
+          FRONTEND_REDIRECT_URL: ${{ env.FRONTEND_REDIRECT_URL }}
+          EMAIL_HOST: ${{ env.EMAIL_HOST }}
+          EMAIL_PORT: ${{ env.EMAIL_PORT }}
+          EMAIL_USER: ${{ env.EMAIL_USER }}
+          EMAIL_PASS: ${{ env.EMAIL_PASS }}
+        run: mvn --batch-mode --update-snapshots verify
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: target/surefire-reports/
