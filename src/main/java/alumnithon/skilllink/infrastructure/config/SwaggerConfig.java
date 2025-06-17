@@ -22,7 +22,7 @@ public class SwaggerConfig {
                                         .description("Ingrese el token JWT para autenticar las solicitudes.")))
 
                 .info(new Info()
-                        .title("Sckilllinks API")
+                        .title("Skilllinks API")
                         .version("1.0")
                 );
     }
