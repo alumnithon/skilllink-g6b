@@ -14,8 +14,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -89,4 +87,38 @@ public class User implements UserDetails {
     }
 
 
+    // --- Getter ---
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public @Email String getEmail() {
+        return email;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
 }
