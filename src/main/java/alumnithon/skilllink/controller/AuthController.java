@@ -31,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthResponseDTO> autenticateUser(@RequestBody @Valid AuthRequestDTO authRequestDTO) {
+    public ResponseEntity<AuthResponseDTO> authenticateUser(@RequestBody @Valid AuthRequestDTO authRequestDTO) {
         return ResponseEntity.ok(authService.authenticateUser(authRequestDTO));
     }
 
