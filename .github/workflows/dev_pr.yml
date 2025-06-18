@@ -1,0 +1,330 @@
+name: Development PR Checks
+
+on:
+  pull_request:
+    branches:
+      - development
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    env:
+      # Cache optimization for faster builds
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: '5'
+
+      # Database configuration for dev environment
+      MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_MYSQL_ROOT_PASSWORD || 'dev_testpassword' }}
+      MYSQL_DATABASE: ${{ vars.DEV_MYSQL_DATABASE || 'skilllink_dev_db' }}
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+
+      # Application configuration for dev environment
+      JWT_SECRET: ${{ secrets.DEV_JWT_SECRET || 'dev_jwt_secret_for_ci' }}
+      FRONTEND_CORS_URL: ${{ vars.DEV_FRONTEND_CORS_URL || '*' }}
+      FRONTEND_REDIRECT_URL: ${{ vars.DEV_FRONTEND_REDIRECT_URL || 'http://localhost:5173' }}
+
+      # Email configuration for dev environment
+      EMAIL_HOST: ${{ vars.DEV_EMAIL_HOST || 'smtp.mailtrap.io' }}
+      EMAIL_PORT: ${{ vars.DEV_EMAIL_PORT || '587' }}
+      EMAIL_USER: ${{ secrets.DEV_EMAIL_USER || 'dev_test_user' }}
+      EMAIL_PASS: ${{ secrets.DEV_EMAIL_PASS || 'dev_test_password' }}
+
+      # Test validation thresholds
+      MIN_TEST_COUNT: 3
+      AUTOMERGE_TEST_COUNT: 6
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DEV_MYSQL_ROOT_PASSWORD || 'dev_testpassword' }}
+          MYSQL_DATABASE: ${{ vars.DEV_MYSQL_DATABASE || 'skilllink_dev_db' }}
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s
+          --health-retries=3
+
+    outputs:
+      test-count: ${{ steps.test-analysis.outputs.test-count }}
+      should-automerge: ${{ steps.test-analysis.outputs.should-automerge }}
+      test-status: ${{ steps.test-analysis.outputs.test-status }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.7.1
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+          check-latest: false
+          cache-dependency-path: 'pom.xml'
+
+      - name: Wait for MySQL to be ready
+        run: |
+          until mysqladmin ping -h"${{ env.MYSQL_HOST }}" -P${{ env.MYSQL_PORT }} -u${{ env.MYSQL_USER }} -p${{ env.MYSQL_ROOT_PASSWORD }} --silent; do
+            echo 'Waiting for MySQL...'
+            sleep 5
+          done
+
+      - name: Run Checkstyle
+        uses: nikitasavinov/checkstyle-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: 'github-pr-check'
+          tool_name: 'Checkstyle'
+          checkstyle_config: 'google_checks'
+          workdir: 'src/'
+
+      - name: Check Java code formatting with Google Java Format
+        uses: axel-op/googlejavaformat-action@v3
+        with:
+          args: '--set-exit-if-changed'
+          skip-commit: true
+
+      - name: Build and test with Maven
+        env:
+          DB_HOST: ${{ env.MYSQL_HOST }}
+          DB_PORT: ${{ env.MYSQL_PORT }}
+          DB_NAME: ${{ env.MYSQL_DATABASE }}
+          DB_USER: ${{ env.MYSQL_USER }}
+          DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          JWT_SECRET: ${{ env.JWT_SECRET }}
+          FRONTEND_CORS_URL: ${{ env.FRONTEND_CORS_URL }}
+          FRONTEND_REDIRECT_URL: ${{ env.FRONTEND_REDIRECT_URL }}
+          EMAIL_HOST: ${{ env.EMAIL_HOST }}
+          EMAIL_PORT: ${{ env.EMAIL_PORT }}
+          EMAIL_USER: ${{ env.EMAIL_USER }}
+          EMAIL_PASS: ${{ env.EMAIL_PASS }}
+        run: mvn --batch-mode --update-snapshots verify
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: target/surefire-reports/
+
+      - name: Analyze test coverage and count
+        id: test-analysis
+        run: |
+          echo "🧪 Analyzing test results..."
+
+          # Count total number of tests from surefire reports
+          if [ -d "target/surefire-reports" ]; then
+            # Count tests from XML reports
+            TOTAL_TESTS=$(find target/surefire-reports -name "*.xml" -type f -exec grep -o '<testcase' {} \; | wc -l)
+
+            # Alternative method: count from test summary
+            if [ $TOTAL_TESTS -eq 0 ] && [ -f "target/surefire-reports/TEST-*.xml" ]; then
+              TOTAL_TESTS=$(grep -r 'tests="[0-9]*"' target/surefire-reports/ | grep -o 'tests="[0-9]*"' | cut -d'"' -f2 | awk '{sum += $1} END {print sum}')
+            fi
+
+            # Fallback: count Java test files
+            if [ $TOTAL_TESTS -eq 0 ]; then
+              TOTAL_TESTS=$(find src/test/java -name "*Test.java" -o -name "*Tests.java" | wc -l)
+              echo "⚠️ Using fallback test count method (counting test files)"
+            fi
+          else
+            echo "❌ No test reports found!"
+            TOTAL_TESTS=0
+          fi
+
+          echo "📊 Total tests found: $TOTAL_TESTS"
+          echo "📏 Minimum required: ${{ env.MIN_TEST_COUNT }}"
+          echo "🚀 Automerge threshold: ${{ env.AUTOMERGE_TEST_COUNT }}"
+
+          # Determine test status and actions
+          if [ $TOTAL_TESTS -lt ${{ env.MIN_TEST_COUNT }} ]; then
+            TEST_STATUS="insufficient"
+            SHOULD_AUTOMERGE="false"
+            echo "❌ Insufficient tests! Found $TOTAL_TESTS, minimum required: ${{ env.MIN_TEST_COUNT }}"
+            echo "::error::PR must have at least ${{ env.MIN_TEST_COUNT }} tests. Currently has $TOTAL_TESTS tests."
+            exit 1
+          elif [ $TOTAL_TESTS -ge ${{ env.AUTOMERGE_TEST_COUNT }} ]; then
+            TEST_STATUS="excellent"
+            SHOULD_AUTOMERGE="true"
+            echo "🎉 Excellent test coverage! $TOTAL_TESTS tests found - eligible for automerge"
+          else
+            TEST_STATUS="sufficient"
+            SHOULD_AUTOMERGE="false"
+            echo "✅ Sufficient tests ($TOTAL_TESTS) - PR ready for manual review"
+          fi
+
+          # Set outputs
+          echo "test-count=$TOTAL_TESTS" >> $GITHUB_OUTPUT
+          echo "should-automerge=$SHOULD_AUTOMERGE" >> $GITHUB_OUTPUT
+          echo "test-status=$TEST_STATUS" >> $GITHUB_OUTPUT
+
+          # Create test summary for PR comment
+          echo "## 🧪 Test Analysis Summary" > test_summary.md
+          echo "" >> test_summary.md
+          echo "- **Tests Found:** $TOTAL_TESTS" >> test_summary.md
+          echo "- **Status:** $TEST_STATUS" >> test_summary.md
+          echo "- **Action:** $([ "$SHOULD_AUTOMERGE" = "true" ] && echo "✅ Eligible for automerge" || echo "👀 Manual review required")" >> test_summary.md
+          echo "" >> test_summary.md
+          echo "### Test Requirements:" >> test_summary.md
+          echo "- **Minimum:** ${{ env.MIN_TEST_COUNT }} tests ($([ $TOTAL_TESTS -ge ${{ env.MIN_TEST_COUNT }} ] && echo "✅ Met" || echo "❌ Not met"))" >> test_summary.md
+          echo "- **Automerge:** ${{ env.AUTOMERGE_TEST_COUNT }}+ tests ($([ $TOTAL_TESTS -ge ${{ env.AUTOMERGE_TEST_COUNT }} ] && echo "✅ Met" || echo "❌ Not met"))" >> test_summary.md
+
+      - name: Comment PR with test analysis
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const testSummary = fs.readFileSync('test_summary.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: testSummary
+            });
+
+      # Docker validation section - ensures containerized app works
+      - name: Test Docker build
+        run: |
+          docker build -t skilllink:dev-pr-${{ github.event.number }} .
+          echo "✅ Docker image builds successfully"
+
+      - name: Verify container runs
+        run: |
+          # Comprehensive smoke test with dev environment variables
+          docker run --rm -d --name dev-test-container \
+            -e DB_HOST=${{ env.MYSQL_HOST }} \
+            -e DB_PORT=${{ env.MYSQL_PORT }} \
+            -e DB_NAME=${{ env.MYSQL_DATABASE }} \
+            -e DB_USER=${{ env.MYSQL_USER }} \
+            -e DB_PASSWORD=${{ env.MYSQL_ROOT_PASSWORD }} \
+            -e JWT_SECRET=${{ env.JWT_SECRET }} \
+            -e EMAIL_HOST=${{ env.EMAIL_HOST }} \
+            -e EMAIL_PORT=${{ env.EMAIL_PORT }} \
+            -e EMAIL_USER=${{ env.EMAIL_USER }} \
+            -e EMAIL_PASS=${{ env.EMAIL_PASS }} \
+            -e FRONTEND_CORS_URL=${{ env.FRONTEND_CORS_URL }} \
+            -e FRONTEND_REDIRECT_URL=${{ env.FRONTEND_REDIRECT_URL }} \
+            skilllink:dev-pr-${{ github.event.number }}
+
+          # Give the application time to start
+          sleep 15
+
+          if docker ps | grep dev-test-container; then
+            echo "✅ Container starts successfully with dev configuration"
+
+            # Optional: Test health endpoint if available
+            CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dev-test-container)
+            echo "Container IP: $CONTAINER_IP"
+
+            # Stop container gracefully
+            docker stop dev-test-container
+          else
+            echo "❌ Container failed to start"
+            echo "=== Container logs ==="
+            docker logs dev-test-container
+            exit 1
+          fi
+
+      - name: Docker cleanup
+        if: always()
+        run: |
+          docker rm -f dev-test-container 2>/dev/null || true
+          docker rmi skilllink:dev-pr-${{ github.event.number }} 2>/dev/null || true
+
+      - name: Development PR validation summary
+        run: |
+          echo "🎉 Comprehensive development validation completed!"
+          echo "✅ Code quality checks passed"
+          echo "✅ Test requirements met (${{ steps.test-analysis.outputs.test-count }} tests)"
+          echo "✅ All tests passed with real database"
+          echo "✅ Docker container builds and runs successfully"
+
+          if [ "${{ steps.test-analysis.outputs.should-automerge }}" = "true" ]; then
+            echo "🚀 Eligible for automerge (excellent test coverage)"
+          else
+            echo "👀 Ready for manual review"
+          fi
+
+  # Conditional automerge job
+  automerge:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if: needs.build_and_test.outputs.should-automerge == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: '🤖 **Auto-approved due to excellent test coverage** (${{ needs.build_and_test.outputs.test-count }} tests)\n\n✅ All quality checks passed\n✅ Comprehensive test suite\n✅ Docker validation successful'
+            });
+
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              commit_title: 'Auto-merge: ${{ github.event.pull_request.title }}',
+              commit_message: 'Auto-merged due to excellent test coverage (${{ needs.build_and_test.outputs.test-count }} tests) and passing all quality checks.',
+              merge_method: 'squash'
+            });
+
+      - name: Comment on successful automerge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🎉 **PR Auto-merged successfully!**\n\n✅ **${{ needs.build_and_test.outputs.test-count }} tests** passed\n✅ All quality checks completed\n✅ Container validation successful\n\nMerged to `development` branch. Great work on the comprehensive test coverage! 🚀'
+            });
+
+  # Manual review reminder job
+  review_reminder:
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    if:
+      needs.build_and_test.outputs.should-automerge == 'false' &&
+      needs.build_and_test.outputs.test-status == 'sufficient'
+
+    steps:
+      - name: Request manual review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Request review from code owners (defined in CODEOWNERS file)
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: [], // Individual reviewers (if needed)
+                team_reviewers: ['grupo6-backend', 'grupo6-fullstack', 'grupo6-devops'] // Team reviewers from alumnithon org
+              });
+            } catch (error) {
+              console.log('Note: Could not auto-assign team reviewers, CODEOWNERS will handle it:', error.message);
+            }
+
+            const testsNeeded = ${{ env.AUTOMERGE_TEST_COUNT }} - ${{ needs.build_and_test.outputs.test-count }};
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👀 **Manual review requested**\n\n✅ **${{ needs.build_and_test.outputs.test-count }} tests** passed (sufficient coverage)\n✅ All quality checks completed\n✅ Docker container validation successful\n\n💡 **Tip:** Add ' + testsNeeded + ' more tests to enable auto-merge functionality!\n\n📋 **Review assigned via CODEOWNERS** - @alumnithon/grupo6-backend, @alumnithon/grupo6-fullstack, and @alumnithon/grupo6-devops teams will be notified'
+            });

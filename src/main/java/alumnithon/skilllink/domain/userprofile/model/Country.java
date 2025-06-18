@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Country {
-@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 

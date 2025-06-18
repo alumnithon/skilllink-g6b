@@ -1,0 +1,65 @@
+services:
+  java-app:
+    container_name: java-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+      args:
+        MAVEN_PROFILE: dev # This enables DevTools for development
+    restart: unless-stopped
+    init: true
+    env_file: ./.env # Uncomment if .env file exists
+    environment:
+      # Override production settings for development
+      SPRING_PROFILES_ACTIVE: dev
+      JAVA_OPTS:
+        '-XX:MaxRAMPercentage=80.0 -Xdebug
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'
+      # Database connection settings
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      DB_NAME: skilllink_db
+      DB_USER: root
+      # DB_PASSWORD should be set via .env or secrets, not in compose
+      # JWT_SECRET, EMAIL_HOST, etc. should be set via .env or secrets
+    ports:
+      - '8080:8080' # Expose Spring Boot default port
+      - '5005:5005' # Expose debug port for development
+    volumes:
+      - ./src:/app/src:ro # Mount source code for live development (read-only)
+      - ./target:/app/target # Mount target directory for compiled classes
+    depends_on:
+      - mysql-db
+    networks:
+      - app-network
+
+  mysql-db:
+    container_name: mysql-db
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: skilllink_db
+      MYSQL_ROOT_PASSWORD: password
+      # Use UTF-8 for full Unicode support
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - '3306:3306' # Expose MySQL default port
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    # Persistent storage for MySQL database

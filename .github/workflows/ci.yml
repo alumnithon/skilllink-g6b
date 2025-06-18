@@ -1,0 +1,382 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image-tag: ${{ steps.version.outputs.image-tag }}
+
+    permissions:
+      contents: write # Needed for creating GitHub Release
+      packages: write # Needed for pushing to GitHub Container Registry
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for git rev-list --count HEAD
+
+      # --- Maven Build Steps ---
+      # No need to set up JDK explicitly here for Maven, as the Dockerfile's build stage handles it.
+      # The Maven build step will be replaced by the Docker build.
+
+      - name: Calculate version
+        id: version
+        run: |
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          # Using a more robust versioning strategy, e.g., semantic-like with commit count
+          # For example, if your last tag was v1.0.0, this would be 1.0.0.COMMIT_COUNT
+          # For simplicity, sticking to your current "1.0.COMMIT_COUNT"
+          VERSION="1.0.$COMMIT_COUNT"
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+          echo "Image: $IMAGE_TAG"
+
+      # --- Docker Build and Push Steps ---
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: . # Current directory for Dockerfile and source
+          file: ./Dockerfile # Explicitly specify Dockerfile path
+          platforms: linux/amd64,linux/arm64 # Build for multiple architectures
+          push: true # Push the image to the registry
+          tags: |
+            ${{ steps.version.outputs.image-tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest # Also tag with latest
+          # Leveraging GHA cache for Docker BuildKit, critical for Maven dependency caching
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,mode=max,scope=${{ github.workflow }}
+
+      # --- Release Artifacts Generation ---
+      - name: Generate deployment templates
+        run: |
+          mkdir -p release-assets
+
+          # Generic environment template
+          cat > release-assets/.env.template << 'EOF'
+          # Database Configuration
+          DB_HOST=your-database-host
+          DB_PORT=3306
+          DB_NAME=skilllink_prod
+          DB_USER=app_user
+          DB_PASSWORD=your-secure-password
+
+          # JWT Configuration
+          JWT_SECRET=your-super-secure-jwt-secret
+
+          # Email Configuration
+          EMAIL_HOST=smtp.your-provider.com
+          EMAIL_PORT=587
+          EMAIL_USER=your-email@domain.com
+          EMAIL_PASS=your-email-password
+
+          # Frontend Configuration
+          FRONTEND_CORS_URL=https://your-frontend-domain.com
+          FRONTEND_REDIRECT_URL=https://your-frontend-domain.com
+          EOF
+
+          # Generic Docker Compose
+          cat > release-assets/docker-compose.yaml << EOF
+          services:
+            skilllink-app:
+              image: ${{ steps.version.outputs.image-tag }}
+              ports:
+                - "8080:8080"
+              environment:
+                - DB_HOST=\${DB_HOST}
+                - DB_PORT=\${DB_PORT:-3306}
+                - DB_NAME=\${DB_NAME}
+                - DB_USER=\${DB_USER}
+                - DB_PASSWORD=\${DB_PASSWORD}
+                - JWT_SECRET=\${JWT_SECRET}
+                - EMAIL_HOST=\${EMAIL_HOST}
+                - EMAIL_PORT=\${EMAIL_PORT:-587}
+                - EMAIL_USER=\${EMAIL_USER}
+                - EMAIL_PASS=\${EMAIL_PASS}
+                - FRONTEND_CORS_URL=\${FRONTEND_CORS_URL:-*}
+                - FRONTEND_REDIRECT_URL=\${FRONTEND_REDIRECT_URL}
+              restart: unless-stopped
+              healthcheck:
+                test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+                interval: 30s
+                timeout: 10s
+                retries: 3
+                start_period: 60s # Give the app more time to start up before checking
+          EOF
+
+          # Deployment info - Use HEREDOC with no leading spaces for clean output
+          cat > release-assets/DEPLOYMENT.md << EOF
+          # SkillLink ${{ steps.version.outputs.version }} - Deployment Guide
+
+          ## Container Image
+          \`\`\`
+          ${{ steps.version.outputs.image-tag }}
+          \`\`\`
+
+          ## Quick Start
+
+          ### Using Docker
+          \`\`\`bash
+          docker run -d \\
+            --name skilllink-app \\
+            -p 8080:8080 \\
+            -e DB_HOST=your-db-host \\
+            -e DB_NAME=skilllink_prod \\
+            -e DB_USER=app_user \\
+            -e DB_PASSWORD=your-password \\
+            -e JWT_SECRET=your-jwt-secret \\
+            ${{ steps.version.outputs.image-tag }}
+          \`\`\`
+
+          ### Using Docker Compose
+          \`\`\`bash
+          # Download the compose file
+          curl -O https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/docker-compose.yaml
+          curl -O https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/.env.template
+
+          # Configure environment
+          cp .env.template .env
+          # Edit .env with your values
+
+          # Deploy
+          docker-compose up -d
+          \`\`\`
+
+          ## Platform-Specific Deployment
+
+          ### Google Cloud Run
+          \`\`\`bash
+          gcloud run deploy skilllink-app \\
+            --image=${{ steps.version.outputs.image-tag }} \\
+            --platform=managed \\
+            --region=us-central1 \\
+            --port=8080 \\
+            --set-env-vars="DB_HOST=\$DB_HOST,DB_NAME=\$DB_NAME,JWT_SECRET=\$JWT_SECRET"
+          \`\`\`
+
+          ### AWS App Runner
+          Create an \`apprunner.yaml\` in your repository:
+          \`\`\`yaml
+          version: 1.0
+          runtime: docker
+          build:
+            commands:
+              build:
+                - echo "Using pre-built image"
+          run:
+            command: java -XX:MaxRAMPercentage=80.0 -jar /app/app.jar
+            network:
+              port: 8080
+              env:
+                DB_HOST: your-rds-endpoint
+                DB_NAME: skilllink_prod
+                JWT_SECRET: your-jwt-secret
+          \`\`\`
+
+          ### AWS ECS/Fargate
+          Task definition fragment:
+          \`\`\`json
+          {
+            "family": "skilllink-app",
+            "containerDefinitions": [
+              {
+                "name": "skilllink",
+                "image": "${{ steps.version.outputs.image-tag }}",
+                "portMappings": [
+                  {
+                    "containerPort": 8080,
+                    "protocol": "tcp"
+                  }
+                ],
+                "environment": [
+                  {"name": "DB_HOST", "value": "your-rds-endpoint"},
+                  {"name": "DB_NAME", "value": "skilllink_prod"},
+                  {"name": "JWT_SECRET", "value": "your-jwt-secret"}
+                ]
+              }
+            ]
+          }
+          \`\`\`
+
+          ### Azure Container Instances
+          \`\`\`bash
+          az container create \\
+            --resource-group myResourceGroup \\
+            --name skilllink-app \\
+            --image ${{ steps.version.outputs.image-tag }} \\
+            --dns-name-label skilllink-app \\
+            --ports 8080 \\
+            --environment-variables \\
+              DB_HOST=your-db-host \\
+              DB_NAME=skilllink_prod \\
+              JWT_SECRET=your-jwt-secret
+          \`\`\`
+
+          ### Kubernetes
+          \`\`\`yaml
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: skilllink-app
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: skilllink
+            template:
+              metadata:
+                labels:
+                  app: skilllink
+              spec:
+                containers:
+                - name: skilllink
+                  image: ${{ steps.version.outputs.image-tag }}
+                  ports:
+                  - containerPort: 8080
+                  env:
+                  - name: DB_HOST
+                    value: "your-db-host"
+                  - name: DB_NAME
+                    value: "skilllink_prod"
+                  - name: JWT_SECRET
+                    valueFrom:
+                      secretKeyRef:
+                        name: app-secrets
+                        key: jwt-secret
+          ---
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: skilllink-service
+          spec:
+            selector:
+              app: skilllink
+            ports:
+            - port: 80
+              targetPort: 8080
+            type: LoadBalancer
+          \`\`\`
+
+          ### Digital Ocean App Platform
+          \`\`\`yaml
+          name: skilllink-app
+          services:
+          - name: api
+            source_dir: /
+            github:
+              repo: ${{ github.repository }}
+              branch: main
+            run_command: java -XX:MaxRAMPercentage=80.0 -jar /app/app.jar
+            environment_slug: docker
+            instance_count: 1
+            instance_size_slug: basic-xxs
+            http_port: 8080
+            envs:
+            - key: DB_HOST
+              value: your-db-host
+            - key: JWT_SECRET
+              value: your-jwt-secret
+              type: SECRET
+          \`\`\`
+
+          ## Required Environment Variables
+
+          | Variable | Description | Example |
+          |----------|-------------|---------|
+          | DB_HOST | Database hostname | \`db.example.com\` |
+          | DB_PORT | Database port | \`3306\` |
+          | DB_NAME | Database name | \`skilllink_prod\` |
+          | DB_USER | Database username | \`app_user\` |
+          | DB_PASSWORD | Database password | \`secure_password\` |
+          | JWT_SECRET | JWT signing secret | \`your-super-secure-jwt-secret\` |
+          | EMAIL_HOST | SMTP hostname | \`smtp.gmail.com\` |
+          | EMAIL_PORT | SMTP port | \`587\` |
+          | EMAIL_USER | SMTP username | \`noreply@yourapp.com\` |
+          | EMAIL_PASS | SMTP password | \`app_password\` |
+          | FRONTEND_CORS_URL | Frontend URL for CORS | \`https://app.example.com\` |
+          | FRONTEND_REDIRECT_URL | Frontend redirect URL | \`https://app.example.com\` |
+
+          ## Health Check
+          The application provides health check endpoints:
+          - **Liveness:** \`GET /actuator/health\`
+          - **Readiness:** \`GET /actuator/health/readiness\`
+
+          ## Container Details
+          - **Base Image:** Eclipse Temurin 21 JRE (Alpine)
+          - **Port:** 8080
+          - **Architecture:** AMD64, ARM64
+          - **User:** Non-root (appuser)
+          - **Memory:** Optimized for container environments
+          EOF
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## SkillLink Release ${{ steps.version.outputs.version }}
+
+            **Container Image:** `${{ steps.version.outputs.image-tag }}`
+
+            This release includes:
+            - ✅ Production-ready Docker image (multi-platform)
+            - ✅ Generic deployment templates
+            - ✅ Comprehensive deployment guide
+            - ✅ Environment configuration template
+
+            See the [deployment guide](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/DEPLOYMENT.md) for platform-specific instructions.
+
+            ### Quick Deploy
+            ```bash
+            docker run -p 8080:8080 -e DB_HOST=your-db ${{ steps.version.outputs.image-tag }}
+            ```
+          files: |
+            release-assets/*
+            target/*.jar # Include the JAR as a release asset for direct download/inspection
+          draft: false
+          prerelease: false
+
+      - name: Generate summary
+        run: |
+          echo "## 🎉 Release ${{ steps.version.outputs.version }} Published!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Container Image:** \`${{ steps.version.outputs.image-tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Also available as:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Deploy Anywhere:" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker / Docker Compose" >> $GITHUB_STEP_SUMMARY
+          echo "- Google Cloud Run" >> $GITHUB_STEP_SUMMARY
+          echo "- AWS (ECS, App Runner, EC2)" >> $GITHUB_STEP_SUMMARY
+          echo "- Azure Container Instances" >> $GITHUB_STEP_SUMMARY
+          echo "- Kubernetes (any cloud)" >> $GITHUB_STEP_SUMMARY
+          echo "- Digital Ocean App Platform" >> $GITHUB_STEP_SUMMARY
+          echo "- Any container hosting service" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 **Download:** [Deployment Guide](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/DEPLOYMENT.md)" >> $GITHUB_STEP_SUMMARY
