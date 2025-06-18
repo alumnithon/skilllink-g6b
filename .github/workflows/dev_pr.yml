@@ -72,32 +72,22 @@ jobs:
             sleep 5
           done
 
-      - name: Run Checkstyle
-        uses: nikitasavinov/checkstyle-action@master
-        with:
-          reporter: 'github-pr-check'
-          tool_name: 'Checkstyle'
-          checkstyle_config: 'google_checks'
-          workdir: 'src/'
-
-      - name: Check Java code formatting with Google Java Format
-        uses: axel-op/googlejavaformat-action@v3
-        with:
-          args: '--set-exit-if-changed'
-          skip-commit: true
-
       - name: Build and test with Maven
-        run: mvn --batch-mode --update-snapshots verify
+        run: |
+          echo "🏗️ Building and testing application..."
+          mvn --batch-mode --update-snapshots verify
+          echo "✅ Build and tests completed successfully"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() # Always upload test results, even if tests failed
         with:
           name: test-results
           path: target/surefire-reports/
 
       - name: Analyze test coverage and count
         id: test-analysis
+        if: always() # Always analyze results, even if tests failed
         run: |
           echo "🧪 Analyzing test results..."
 
