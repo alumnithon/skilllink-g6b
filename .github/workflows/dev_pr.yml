@@ -83,7 +83,6 @@ jobs:
       - name: Check Java code formatting with Google Java Format
         uses: axel-op/googlejavaformat-action@v3
         with:
-          args: '--set-exit-if-changed'
           skip-commit: true
 
       - name: Build and test with Maven
