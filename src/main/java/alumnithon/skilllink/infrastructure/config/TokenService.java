@@ -1,19 +1,21 @@
 package alumnithon.skilllink.infrastructure.config;
 
-import alumnithon.skilllink.domain.userprofile.model.User;
-import alumnithon.skilllink.shared.exception.AppException;
-import alumnithon.skilllink.shared.exception.ErrorCode;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import alumnithon.skilllink.domain.userprofile.model.User;
+import alumnithon.skilllink.shared.exception.AppException;
+import alumnithon.skilllink.shared.exception.ErrorCode;
 
 @Service
 public class TokenService {
@@ -72,9 +74,10 @@ public class TokenService {
 
     private Instant getExpirationDate() {
         ZoneId zoneId = ZoneId.of(zoneTime);
-        return LocalDateTime.now(zoneId)
+        LocalDateTime now = LocalDateTime.now(zoneId);
+        return now
                 .plusDays(EXPIRATION_DAYS)
-                .toInstant(zoneId.getRules().getOffset(LocalDateTime.now(zoneId)));
+                .toInstant(zoneId.getRules().getOffset(now));
     }
 
 }
