@@ -1,0 +1,44 @@
+# CODEOWNERS file for SkillLink Project
+# This file defines who gets automatically requested for reviews on PRs
+#
+# Format: <file-pattern> <owner1> <owner2> ...
+# Owners can be GitHub usernames (@username) or teams (@org/team-name)
+
+# Global code ownership - all files (fullstack team for broad coverage)
+* @alumnithon/grupo6-fullstack
+
+# Backend Java code - requires backend team review
+src/main/java/ @alumnithon/grupo6-backend
+src/test/java/ @alumnithon/grupo6-backend
+
+# Domain-specific ownership (backend team for business logic)
+src/main/java/alumnithon/skilllink/domain/auth/ @alumnithon/grupo6-backend
+src/main/java/alumnithon/skilllink/domain/userprofile/ @alumnithon/grupo6-backend
+
+# Infrastructure and configuration - requires backend and devops teams for critical changes
+src/main/java/alumnithon/skilllink/infrastructure/ @alumnithon/grupo6-backend @alumnithon/grupo6-devops
+src/main/resources/application.properties @alumnithon/grupo6-backend @alumnithon/grupo6-devops
+pom.xml @alumnithon/grupo6-backend @alumnithon/grupo6-devops
+
+# Database migrations - critical changes require backend team review
+src/main/resources/db/migrations/ @alumnithon/grupo6-backend
+
+# CI/CD and deployment configurations - devops team handles deployments
+.github/workflows/ @alumnithon/grupo6-devops
+Dockerfile @alumnithon/grupo6-devops
+compose.yaml @alumnithon/grupo6-devops
+
+# Documentation - both teams can review
+*.md @alumnithon/grupo6-fullstack
+docs/ @alumnithon/grupo6-fullstack
+
+# Security-related files - requires backend and devops teams for security review
+src/main/java/alumnithon/skilllink/infrastructure/config/ @alumnithon/grupo6-backend @alumnithon/grupo6-devops
+
+# Team-based ownership configuration:
+# - @alumnithon/grupo6-backend: Backend developers focusing on business logic, domain services, and data layer
+# - @alumnithon/grupo6-fullstack: Full-stack developers handling broad coverage and documentation
+# - @alumnithon/grupo6-devops: DevOps engineers handling infrastructure, deployment, CI/CD, and security configurations
+#
+# Critical files (infrastructure, security, build configs) require both backend and devops expertise
+# This ensures both business logic understanding and deployment/infrastructure knowledge in important changes
