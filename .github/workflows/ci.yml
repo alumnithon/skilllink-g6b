@@ -60,11 +60,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: . # Current directory for Dockerfile and source
           file: ./Dockerfile # Explicitly specify Dockerfile path
-          platforms: linux/amd64,linux/arm64 # Build for multiple architectures
+          platforms: linux/amd64 # ,linux/arm64 # Build for multiple architectures
           push: true # Push the image to the registry
           tags: |
             ${{ steps.version.outputs.image-tag }}
@@ -359,7 +359,6 @@ jobs:
             ```
           files: |
             release-assets/*
-            target/*.jar # Include the JAR as a release asset for direct download/inspection
           draft: false
           prerelease: false
 
