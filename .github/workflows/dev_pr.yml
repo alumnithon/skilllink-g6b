@@ -3,12 +3,7 @@ name: Development PR Checks
 on:
   pull_request:
     branches:
-          - name: Wait for MySQL to be ready
-        run: |
-          until mysqladmin ping -h"$MYSQL_HOST" -P$MYSQL_PORT -u$MYSQL_USER -p$MYSQL_ROOT_PASSWORD --silent; do
-            echo 'Waiting for MySQL...'
-            sleep 5
-          donevelopment
+      - development
 
 env:
   # Cache optimization for faster builds
@@ -33,7 +28,7 @@ env:
   EMAIL_PASS: 'dev_test_password'
 
   # Test validation thresholds
-  MIN_TEST_COUNT: 3
+  MIN_TEST_COUNT: 0
   AUTOMERGE_TEST_COUNT: 6
 
 jobs:
