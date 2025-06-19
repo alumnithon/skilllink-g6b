@@ -1,6 +1,7 @@
 package alumnithon.skilllink.domain.userprofile.service;
 
 import org.springframework.stereotype.Service;
+
 import alumnithon.skilllink.domain.userprofile.dto.RegisterRequest;
 import alumnithon.skilllink.domain.userprofile.model.Role;
 import alumnithon.skilllink.domain.userprofile.model.User;
@@ -34,7 +35,7 @@ public class RegisterService {
         newUser.setRole(Role.ROLE_USER);
         newUser.setImage_url(user.getImage_url());
         newUser.setEnabled(true);
-       
+
         return userRepository.save(newUser);
     }
 }
