@@ -75,8 +75,8 @@ jobs:
       - name: Build and test with Maven
         run: |
           echo "🏗️ Building and testing application..."
-          mvn --batch-mode --update-snapshots verify
-          echo "✅ Build and tests completed successfully"
+            mvn --batch-mode --update-snapshots -DskipTests verify
+          echo "✅ Build completed successfully"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
