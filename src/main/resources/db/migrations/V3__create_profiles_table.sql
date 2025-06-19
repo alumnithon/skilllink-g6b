@@ -43,7 +43,7 @@ CREATE TABLE profile_skills (
 
 -- Tabla para intereses
 CREATE TABLE profile_interests (
-    profile_id BIGINT NOT NULL,
+    profile_id BIGINT NOT NULL PRIMARY KEY,
     interest VARCHAR(255),
     CONSTRAINT fk_interest_profile FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
