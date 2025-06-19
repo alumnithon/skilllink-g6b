@@ -1,6 +1,8 @@
 ## Running with Docker
 
-This project provides a ready-to-use Docker setup for local development and deployment. The included `Dockerfile` and `docker-compose.yml` files ensure consistent builds and easy startup of all required services.
+This project provides a ready-to-use Docker setup for local development and deployment. The included
+`Dockerfile` and `docker-compose.yml` files ensure consistent builds and easy startup of all
+required services.
 
 ### Requirements
 
@@ -16,23 +18,26 @@ This project provides a ready-to-use Docker setup for local development and depl
 
 ### Environment Variables
 
-The application requires several environment variables for configuration. These can be set in a `.env` file at the project root or directly in the `docker-compose.yml` file. Key variables include:
+The application requires several environment variables for configuration. These can be set in a
+`.env` file at the project root or directly in the `docker-compose.yml` file. Key variables include:
 
 - `DB_HOST` (default: `mysql-db`)
 - `DB_PORT` (default: `3306`)
 - `DB_NAME` (default: `skilllink_db`)
 - `DB_USER` (default: `root`)
 - `DB_PASSWORD` (should be set securely)
-- `JWT_SECRET`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` (for security and email integration)
+- `JWT_SECRET`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` (for security and email
+  integration)
 
-> **Note:** The `DB_PASSWORD` and other sensitive values should be set via a `.env` file or Docker secrets. Do not hardcode them in version control.
+> **Note:** The `DB_PASSWORD` and other sensitive values should be set via a `.env` file or Docker
+> secrets. Do not hardcode them in version control.
 
 ### Build and Run Instructions
 
 1. **(Optional) Create a `.env` file**
-   
+
    Copy `.env.example` to `.env` and update values as needed:
-   
+
    ```bash
    cp .env.example .env
    # Edit .env to set DB_PASSWORD, JWT_SECRET, etc.
@@ -43,26 +48,30 @@ The application requires several environment variables for configuration. These 
    From the project root, run:
 
    ```bash
-   docker compose up --build
+   docker compose up --build -d
    ```
 
    This will:
+
    - Build the Java application using the multi-stage Dockerfile (Java 21, Maven)
    - Start the Spring Boot app and MySQL 8.0 database
    - Apply database migrations automatically on startup
 
 3. **Access the application**
 
-   - API: [http://localhost:8080](http://localhost:8080)
-   - API Docs: [http://localhost:8080/api/docs/index.html](http://localhost:8080/api/docs/index.html)
+   - API: [http://localhost:8080/api/](http://localhost:8080/api/)
+   - API Swagger Docs:
+     [http://localhost:8080/api/docs/swagger-ui/index.html](http://localhost:8080/api/docs/swagger-ui/index.html)
    - MySQL: `localhost:3306` (use credentials from your `.env` file)
 
 ### Special Configuration
 
 - The application runs as a non-root user inside the container for improved security.
 - MySQL data is persisted in a Docker volume (`mysql-data`) to avoid data loss between restarts.
-- The `docker-compose.yml` file is pre-configured for local development, but you should review and adjust environment variables for production deployments.
+- The `docker-compose.yml` file is pre-configured for local development, but you should review and
+  adjust environment variables for production deployments.
 
 ---
 
-For more details on environment variables and configuration, see the [Environment Variables](#environment-variables) section above.
+For more details on environment variables and configuration, see the
+[Environment Variables](#environment-variables) section above.

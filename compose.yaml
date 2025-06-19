@@ -9,7 +9,7 @@ services:
         MAVEN_PROFILE: dev # This enables DevTools for development
     restart: unless-stopped
     init: true
-    env_file: ./.env # Uncomment if .env file exists
+    # env_file: ./.env # Uncomment if .env file exists
     environment:
       # Override production settings for development
       SPRING_PROFILES_ACTIVE: dev
