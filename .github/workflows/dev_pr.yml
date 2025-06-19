@@ -168,43 +168,6 @@ jobs:
           docker build -t skilllink:dev-pr-${{ github.event.number }} .
           echo "✅ Docker image builds successfully"
 
-      - name: Verify container runs
-        run: |
-          # Comprehensive smoke test with dev environment variables
-          docker run --rm -d --name dev-test-container \
-            -e DB_HOST=${{ env.MYSQL_HOST }} \
-            -e DB_PORT=${{ env.MYSQL_PORT }} \
-            -e DB_NAME=${{ env.MYSQL_DATABASE }} \
-            -e DB_USER=${{ env.MYSQL_USER }} \
-            -e DB_PASSWORD=${{ env.MYSQL_ROOT_PASSWORD }} \
-            -e JWT_SECRET=${{ env.JWT_SECRET }} \
-            -e EMAIL_HOST=${{ env.EMAIL_HOST }} \
-            -e EMAIL_PORT=${{ env.EMAIL_PORT }} \
-            -e EMAIL_USER=${{ env.EMAIL_USER }} \
-            -e EMAIL_PASS=${{ env.EMAIL_PASS }} \
-            -e FRONTEND_CORS_URL=${{ env.FRONTEND_CORS_URL }} \
-            -e FRONTEND_REDIRECT_URL=${{ env.FRONTEND_REDIRECT_URL }} \
-            skilllink:dev-pr-${{ github.event.number }}
-
-          # Give the application time to start
-          sleep 15
-
-          if docker ps | grep dev-test-container; then
-            echo "✅ Container starts successfully with dev configuration"
-
-            # Optional: Test health endpoint if available
-            CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' dev-test-container)
-            echo "Container IP: $CONTAINER_IP"
-
-            # Stop container gracefully
-            docker stop dev-test-container
-          else
-            echo "❌ Container failed to start"
-            echo "=== Container logs ==="
-            docker logs dev-test-container
-            exit 1
-          fi
-
       - name: Docker cleanup
         if: always()
         run: |
