@@ -59,7 +59,6 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
 
-
     // --- Métodos de UserDetails ---
 
     @Override
@@ -97,9 +96,7 @@ public class User implements UserDetails {
         return enabled;
     }
 
-
     // --- Getter ---
-
 
     public Long getId() {
         return id;
@@ -131,5 +128,35 @@ public class User implements UserDetails {
 
     public Profile getProfile() {
         return profile;
+    }
+
+    public void setEmail(String email2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
+    }
+
+    public void setName(String name2) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setName'");
+    }
+
+    public void setPassword(String hasedPasword) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setPassword'");
+    }
+
+    public void setRole(Role roleUser) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setRole'");
+    }
+
+    public void setImage_url(String image_url2) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setImage_url'");
+    }
+
+    public void setEnabled(boolean b) {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException("Unimplemented method 'setEnabled'");
     }
 }
