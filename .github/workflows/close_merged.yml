@@ -1,0 +1,106 @@
+name: Clean Up Merged Branches
+
+on:
+  schedule:
+    # Run every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cleanup-merged-branches:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches
+
+      - name: Delete merged branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+
+            try {
+              console.log('Fetching all branches...');
+              execSync('git fetch --all --prune', { stdio: 'inherit' });
+
+              console.log('Finding merged branches that are children of development...');
+
+              // Get all remote branches that are merged into development
+              const mergedBranchesOutput = execSync(
+                'git branch -r --merged origin/development',
+                { encoding: 'utf8' }
+              );
+
+              const mergedBranches = mergedBranchesOutput
+                .split('\n')
+                .map(branch => branch.trim().replace('origin/', ''))
+                .filter(branch =>
+                  branch &&
+                  !branch.includes('HEAD') &&
+                  branch !== 'development' &&
+                  branch !== 'main' &&
+                  branch !== 'master'
+                );
+
+              if (mergedBranches.length === 0) {
+                console.log('No merged branches found to delete.');
+                return;
+              }
+
+              console.log('Found merged branches:', mergedBranches);
+
+              // Check each branch for merged PRs and delete if found
+              for (const branch of mergedBranches) {
+                console.log(`Checking branch: ${branch}`);
+
+                try {
+                  // Get merged PRs for this branch
+                  const { data: prs } = await github.rest.pulls.list({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    state: 'closed',
+                    head: `${context.repo.owner}:${branch}`,
+                    base: 'development'
+                  });
+
+                  // Check if any PR is merged
+                  const mergedPR = prs.find(pr => pr.merged_at !== null);
+
+                  if (mergedPR) {
+                    console.log(`Found merged PR #${mergedPR.number} for branch ${branch}`);
+
+                    try {
+                      // Delete the branch
+                      await github.rest.git.deleteRef({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: `heads/${branch}`
+                      });
+                      console.log(`✅ Successfully deleted branch: ${branch}`);
+                    } catch (deleteError) {
+                      if (deleteError.status === 422) {
+                        console.log(`⚠️  Branch ${branch} may already be deleted`);
+                      } else {
+                        console.error(`❌ Failed to delete branch ${branch}:`, deleteError.message);
+                      }
+                    }
+                  } else {
+                    console.log(`⏭️  Branch ${branch} has no merged PR, skipping...`);
+                  }
+                } catch (prError) {
+                  console.error(`❌ Error checking PRs for branch ${branch}:`, prError.message);
+                }
+              }
+
+              console.log('🎉 Cleanup completed.');
+
+            } catch (error) {
+              console.error('❌ Workflow failed:', error.message);
+              process.exit(1);
+            }

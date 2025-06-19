@@ -1,0 +1,86 @@
+# 1. Version control
+.git/
+.gitignore
+.hg/
+.svn/
+
+# 2. IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 3. Build outputs and artifacts
+target/
+dist/
+build/
+out/
+
+# 4. Java-specific
+*.class
+
+# 5. Python-specific
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+
+# 6. Node.js (precautionary)
+node_modules/
+npm-debug.log
+yarn-debug.log
+
+# 7. Go (precautionary)
+/vendor/
+*.test
+.go-cache/
+
+# 8. Test and debug files
+test/
+tests/
+debug/
+*.log
+
+# 9. Environment and secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+config.local.*
+*.local.yml
+
+# 10. Documentation and markdown
+docs/
+*.md
+README*
+HELP.md
+
+# 11. Docker and compose files
+Dockerfile*
+docker-compose*
+
+# 12. Temporary and local files
+tmp/
+temp/
+*.tmp
+.local/
+local/
+
+# 13. Project-specific
+.github/
+
+# 14. Miscellaneous
+*.bak
+*.old
+
+# Exclude files and directories that should NOT be ignored
+!pom.xml
+!src/
+!scripts/
+!mvnw
+!mvnw.cmd
+
+# End of .dockerignore
