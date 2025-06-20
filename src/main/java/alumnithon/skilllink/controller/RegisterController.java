@@ -7,7 +7,7 @@
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RestController;
-    import alumnithon.skilllink.domain.userprofile.dto.RegisterRequest;
+    import alumnithon.skilllink.domain.userprofile.dto.RegisterRequestDto;
     import alumnithon.skilllink.domain.userprofile.service.RegisterService;
     import io.micrometer.core.instrument.config.validate.ValidationException;
     import jakarta.transaction.Transactional;
@@ -25,7 +25,7 @@
     
         @PostMapping 
         @Transactional
-        public ResponseEntity<?> crearUsuario(@RequestBody @Valid RegisterRequest usuario) {
+        public ResponseEntity<?> cteateUser(@RequestBody @Valid RegisterRequestDto usuario) {
             try {
                registerService.createUser(usuario);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registred correctly");

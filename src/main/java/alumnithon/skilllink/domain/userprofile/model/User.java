@@ -9,9 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-
+@Setter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -118,4 +117,5 @@ public class User implements UserDetails {
     public Profile getProfile() {
         return profile;
     }
+    
 }

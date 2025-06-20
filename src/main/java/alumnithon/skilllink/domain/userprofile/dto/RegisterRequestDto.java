@@ -9,8 +9,15 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterRequest {
+public class RegisterRequestDto {
 
+    public RegisterRequestDto(String string, String string2, String string3, String string4) {
+        this.name = string;
+        this.email = string2;
+        this.password = string3;
+        this.image_url = string4;
+    }
+    
     @NotBlank(message = "Name is required")
     private String name;
     @Email(message = "The email must be in a valid format")

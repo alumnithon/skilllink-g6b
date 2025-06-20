@@ -1,7 +1,7 @@
 package alumnithon.skilllink.domain.userprofile.service;
 
 import org.springframework.stereotype.Service;
-import alumnithon.skilllink.domain.userprofile.dto.RegisterRequest;
+import alumnithon.skilllink.domain.userprofile.dto.RegisterRequestDto;
 import alumnithon.skilllink.domain.userprofile.model.Role;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import alumnithon.skilllink.domain.userprofile.repository.UserRepository;
@@ -19,7 +19,7 @@ public class RegisterService {
        this.userRepository = userRepository;
     }
 
-    public User createUser(@Valid RegisterRequest user){
+    public User createUser(@Valid RegisterRequestDto user){
         if (userRepository.existsByEmail(user.getEmail())){
             throw new IllegalArgumentException("The email has already been registered before");
         }
