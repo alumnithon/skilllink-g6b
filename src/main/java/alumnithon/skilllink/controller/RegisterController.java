@@ -14,7 +14,7 @@
     import jakarta.validation.Valid;
     
     @RestController
-    @RequestMapping("/api/registrer")
+    @RequestMapping("/registrer")
     public class RegisterController {
     
          

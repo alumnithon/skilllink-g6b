@@ -7,4 +7,6 @@ import alumnithon.skilllink.domain.userprofile.model.User;
 public interface ProfileRepository extends JpaRepository <Profile, Long>{
     
     boolean existsByUser(User user);
+
+    Profile findByUser(User user);
 }
