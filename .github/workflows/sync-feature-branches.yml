@@ -1,0 +1,66 @@
+name: Sync Feature Branches with Development
+
+on:
+  push:
+    branches: [development]
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync feature branches
+        run: |
+          git fetch origin
+
+          # Find all development/feat/ branches
+          FEAT_BRANCHES=$(git branch -r | grep 'origin/development/feat/' | sed 's/origin\///' | xargs)
+
+          CONFLICTS=()
+          SYNCED=()
+
+          if [ -z "$FEAT_BRANCHES" ]; then
+            echo "No feature branches found to sync"
+            exit 0
+          fi
+
+          for branch in $FEAT_BRANCHES; do
+            echo "🔄 Attempting to sync $branch with development..."
+
+            git checkout $branch
+
+            if git merge origin/development --no-edit; then
+              echo "✅ Successfully merged development into $branch"
+              git push origin $branch
+              SYNCED+=("$branch")
+            else
+              echo "❌ Merge conflict in $branch - requires manual resolution"
+              git merge --abort
+              CONFLICTS+=("$branch")
+            fi
+          done
+
+          # Summary
+          echo "📊 Sync Summary:"
+          echo "✅ Successfully synced: ${#SYNCED[@]} branches"
+          echo "❌ Conflicts requiring manual resolution: ${#CONFLICTS[@]} branches"
+
+          if [ ${#SYNCED[@]} -gt 0 ]; then
+            echo "Synced branches:"
+            printf '%s\n' "${SYNCED[@]}"
+          fi
+
+          if [ ${#CONFLICTS[@]} -gt 0 ]; then
+            echo "Branches with conflicts (run scripts/sync_with_dev.py manually):"
+            printf '%s\n' "${CONFLICTS[@]}"
+          fi

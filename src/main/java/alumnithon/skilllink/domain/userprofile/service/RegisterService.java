@@ -20,6 +20,7 @@ public class RegisterService {
     }
 
     public User createUser(@Valid RegisterRequestDto user){
+
         if (userRepository.existsByEmail(user.getEmail())){
             throw new IllegalArgumentException("The email has already been registered before");
         }
@@ -34,7 +35,6 @@ public class RegisterService {
         newUser.setRole(Role.ROLE_USER);
         newUser.setImage_url(user.getImage_url());
         newUser.setEnabled(true);
-       
         return userRepository.save(newUser);
     }
 }
