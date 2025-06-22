@@ -1,6 +1,7 @@
 package alumnithon.skilllink.domain.learning.challenge.mapper;
 
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeCreateDto;
+import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeDetailDto;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengePreviewDto;
 import alumnithon.skilllink.domain.learning.challenge.model.Challenge;
 import alumnithon.skilllink.domain.userprofile.model.User;
@@ -28,6 +29,20 @@ public class ChallengeMapper {
                 challenge.getTitle(),
                 challenge.getDifficultyLevel(),
                 challenge.getDeadline()
+        );
+    }
+
+    // Convertir a DTO detallado
+    public static ChallengeDetailDto toDetailDto(Challenge challenge) {
+        return new ChallengeDetailDto(
+                challenge.getId(),
+                challenge.getTitle(),
+                challenge.getDescription(),
+                challenge.getDifficultyLevel(),
+                challenge.getCreatedAt().toLocalDate(),
+                challenge.getDeadline(),
+                challenge.getCreatedBy().getId(),
+                challenge.getCreatedBy().getName()
         );
     }
 }

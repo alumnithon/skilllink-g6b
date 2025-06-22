@@ -2,12 +2,17 @@ package alumnithon.skilllink.domain.learning.challenge.service;
 
 import alumnithon.skilllink.domain.auth.service.AuthenticatedUserProvider;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeCreateDto;
+import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeDetailDto;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengePreviewDto;
 import alumnithon.skilllink.domain.learning.challenge.mapper.ChallengeMapper;
 import alumnithon.skilllink.domain.learning.challenge.model.Challenge;
 import alumnithon.skilllink.domain.learning.challenge.repository.ChallengeRepository;
 import alumnithon.skilllink.domain.learning.challenge.validator.IsExistsChallengeByTitle;
+import alumnithon.skilllink.shared.exception.AppException;
+import alumnithon.skilllink.shared.exception.ErrorCode;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +27,21 @@ public class ChallengeService {
         this.isExistsChallengeByTitle = isExistsChallengeByTitle;
     }
 
+    //Ver challenger por mentor
+    public Page<ChallengePreviewDto> getAllChallengesForMentor(Pageable pageable) {
+        return challengeRepository.findByCreatedByIdAndEnabledTrue(userProvider.getCurrentUser().getId(), pageable)
+                .map(ChallengeMapper::toPreviewDto);
+    }
+
+    public ChallengeDetailDto getChallengeByIdForMentor(Long id) {
+
+        Challenge challenge = challengeRepository.findByIdAndEnabledTrueAndCreatedBy_Id(id, userProvider.getCurrentUser().getId())
+                .orElseThrow(() -> new AppException("Recurso no encontrado", ErrorCode.NOT_FOUND));
+
+        return ChallengeMapper.toDetailDto(challenge);
+    }
+
+    //Crear Challenger
     public ChallengePreviewDto createChallengeByMentor(@Valid ChallengeCreateDto dto) {
         //validar y asignar el usuario logeado
         var creator = userProvider.getCurrentUser();

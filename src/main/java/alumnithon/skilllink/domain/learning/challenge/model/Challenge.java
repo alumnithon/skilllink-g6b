@@ -61,8 +61,10 @@ public class Challenge implements OwnableByMentor {
         return this.createdBy;
     }
 
+    public Challenge() {
+    }
 
-    //<--  Getter -->
+//<--  Getter -->
 
     public Long getId() {
         return id;
