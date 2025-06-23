@@ -59,4 +59,11 @@ public class ChallengeController {
         return ResponseEntity.ok(challengeService.updateChallengeByMentor(id, dto));
     }
 
+    @DeleteMapping("/mentor/{id}")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        challengeService.deleteChallengeByMentor(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -77,4 +77,11 @@ public class ChallengeService {
         return ChallengeMapper.toDetailDto(challenge);
     }
 
+    @Transactional
+    public void deleteChallengeByMentor(Long id) {
+        Challenge challenge = validateChallengeByID.validateExistsAndEnabled(id);
+        validatorCreatedBy.validateOwnedByMentor(challenge, userProvider.getCurrentUser().getId());
+        challenge.disable();
+    }
+
 }
