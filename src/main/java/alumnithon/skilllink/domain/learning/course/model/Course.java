@@ -5,9 +5,6 @@ import alumnithon.skilllink.domain.learning.course.dto.CourseUpdateDTO;
 import alumnithon.skilllink.domain.learning.sharedLearning.interfaces.OwnableByMentor;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
