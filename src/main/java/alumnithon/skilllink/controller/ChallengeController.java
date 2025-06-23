@@ -66,4 +66,21 @@ public class ChallengeController {
         return ResponseEntity.noContent().build();
     }
 
+
+    //<---- Rutas para todos los los usuarios autenticados  ---->
+
+    //Obtener Challenger por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<ChallengeDetailDto> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(challengeService.getChallengeById(id));
+    }
+
+    //Obtener todos los Challenges
+    @GetMapping
+    public ResponseEntity<Page<ChallengePreviewDto>> getAll(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return ResponseEntity.ok(challengeService.getAllChallenges(pageable));
+    }
+
 }

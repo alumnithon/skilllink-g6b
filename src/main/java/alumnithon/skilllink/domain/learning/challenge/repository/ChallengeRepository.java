@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
+    Page<Challenge> findAllByEnabledTrue( Pageable pageable);
     Optional<Challenge> findByIdAndEnabledTrue(Long id);
     Optional<Challenge> findByIdAndEnabledTrueAndCreatedBy_Id(Long id, Long createdBy_Id);
     Page<Challenge> findByCreatedByIdAndEnabledTrue(Long mentorId, Pageable pageable);

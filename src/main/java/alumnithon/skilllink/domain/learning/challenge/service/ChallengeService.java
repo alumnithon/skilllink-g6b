@@ -42,10 +42,8 @@ public class ChallengeService {
     }
 
     public ChallengeDetailDto getChallengeByIdForMentor(Long id) {
-
         Challenge challenge = challengeRepository.findByIdAndEnabledTrueAndCreatedBy_Id(id, userProvider.getCurrentUser().getId())
                 .orElseThrow(() -> new AppException("Recurso no encontrado", ErrorCode.NOT_FOUND));
-
         return ChallengeMapper.toDetailDto(challenge);
     }
 
@@ -55,7 +53,6 @@ public class ChallengeService {
         var creator = userProvider.getCurrentUser();
         //validar si ya existe challenge con el mismo title para el mismo creador
         isExistsChallengeByTitle.validatorsChallenge(dto,null, creator.getId());
-
         Challenge challenge = ChallengeMapper.toEntity(dto, creator);
         challengeRepository.save(challenge);
         return ChallengeMapper.toPreviewDto(challenge);
@@ -83,5 +80,20 @@ public class ChallengeService {
         validatorCreatedBy.validateOwnedByMentor(challenge, userProvider.getCurrentUser().getId());
         challenge.disable();
     }
+
+
+    //<---- Rutas para todos los los usuarios autenticados  ---->
+
+    public ChallengeDetailDto getChallengeById(Long id) {
+        Challenge challenge = validateChallengeByID.validateExistsAndEnabled(id);
+        return ChallengeMapper.toDetailDto(challenge);
+    }
+
+    public Page<ChallengePreviewDto> getAllChallenges(Pageable pageable) {
+        return challengeRepository.findAllByEnabledTrue(pageable)
+                .map(ChallengeMapper::toPreviewDto);
+    }
+
+
 
 }
