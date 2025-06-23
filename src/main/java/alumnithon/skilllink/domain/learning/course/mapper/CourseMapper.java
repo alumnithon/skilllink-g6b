@@ -1,6 +1,7 @@
 package alumnithon.skilllink.domain.learning.course.mapper;
 
 import alumnithon.skilllink.domain.learning.course.dto.CourseCreateDTO;
+import alumnithon.skilllink.domain.learning.course.dto.CourseDetailDTO;
 import alumnithon.skilllink.domain.learning.course.dto.CoursePreviewDTO;
 import alumnithon.skilllink.domain.learning.course.model.Course;
 import alumnithon.skilllink.domain.userprofile.model.User;
@@ -33,6 +34,17 @@ public class CourseMapper {
                 course.getTitle(),
                 course.getDescription(),
                 course.getHasCertification()
+        );
+    }
+
+    public static CourseDetailDTO toDetailDTO(Course course) {
+        return new CourseDetailDTO(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                course.getHasCertification(),
+                course.getCreatedBy().getName(),
+                course.getCreatedAt()
         );
     }
 }

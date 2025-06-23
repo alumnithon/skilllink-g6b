@@ -1,6 +1,7 @@
 package alumnithon.skilllink.domain.learning.course.model;
 
 
+import alumnithon.skilllink.domain.learning.course.dto.CourseUpdateDTO;
 import alumnithon.skilllink.domain.learning.sharedLearning.interfaces.OwnableByMentor;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import jakarta.persistence.*;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "courses")
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Course implements OwnableByMentor {
@@ -41,11 +41,20 @@ public class Course implements OwnableByMentor {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    public Course(String title, String description,Boolean hasCertification, User creator) {
+    public Course() {
+    }
+
+    public Course(String title, String description, Boolean hasCertification, User creator) {
         this.title = title;
         this.description =description;
         this.hasCertification= hasCertification;
         this.createdBy = creator;
+    }
+
+    public void update(CourseUpdateDTO dto) {
+        if (dto.title() != null && !dto.title().isEmpty()) this.title = dto.title();
+        if (dto.description() != null && !dto.description().isEmpty()) this.description = dto.description();
+        if (dto.hasCertification() != null) this.hasCertification = dto.hasCertification();
     }
 
     public void disable() {
@@ -71,5 +80,9 @@ public class Course implements OwnableByMentor {
 
     public Boolean getHasCertification() {
         return hasCertification;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
