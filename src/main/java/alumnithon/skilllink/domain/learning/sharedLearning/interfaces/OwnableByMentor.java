@@ -1,4 +1,4 @@
-package alumnithon.skilllink.domain.learning.shared.interfaces;
+package alumnithon.skilllink.domain.learning.sharedLearning.interfaces;
 
 import alumnithon.skilllink.domain.userprofile.model.User;
 

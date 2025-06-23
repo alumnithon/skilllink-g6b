@@ -1,4 +1,4 @@
-package alumnithon.skilllink.domain.learning.shared.model;
+package alumnithon.skilllink.domain.learning.sharedLearning.model;
 
 public enum DifficultyLevel {
     BEGINNER,

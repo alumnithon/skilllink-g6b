@@ -10,9 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
+    Optional<Challenge> findByIdAndEnabledTrue(Long id);
     Optional<Challenge> findByIdAndEnabledTrueAndCreatedBy_Id(Long id, Long createdBy_Id);
     Page<Challenge> findByCreatedByIdAndEnabledTrue(Long mentorId, Pageable pageable);
 
-    @Query("SELECT COUNT(c) > 0 FROM Challenge c WHERE c.title = :title AND c.enabled = true AND c.createdBy.id = :createdById")
+    @Query("SELECT COUNT(c.id) > 0 FROM Challenge c WHERE LOWER(c.title) = LOWER(:title) AND c.enabled = true AND c.createdBy.id = :createdById")
     boolean existsByTitleAndEnabledAndCreatedBy(@Param("title") String title, @Param("createdById") Long createdById);
 }

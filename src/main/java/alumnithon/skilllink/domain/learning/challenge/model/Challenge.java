@@ -1,13 +1,10 @@
 package alumnithon.skilllink.domain.learning.challenge.model;
 
-import alumnithon.skilllink.domain.learning.shared.interfaces.OwnableByMentor;
-import alumnithon.skilllink.domain.learning.shared.model.DifficultyLevel;
+import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeUpdateDto;
+import alumnithon.skilllink.domain.learning.sharedLearning.interfaces.OwnableByMentor;
+import alumnithon.skilllink.domain.learning.sharedLearning.model.DifficultyLevel;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -48,6 +45,9 @@ public class Challenge implements OwnableByMentor {
     @Column(name = "enabled", nullable = false)
     private boolean enabled = true;
 
+    public Challenge() {
+    }
+
     public Challenge(String title, String description, DifficultyLevel difficultyLevel, LocalDate deadline, User creator) {
         this.title = title;
         this.description = description;
@@ -56,13 +56,22 @@ public class Challenge implements OwnableByMentor {
         this.createdBy = creator;
     }
 
+    public void updateFromDto(ChallengeUpdateDto dto) {
+        if (dto.title() != null && !dto.title().isEmpty()) this.title = dto.title();
+        if (dto.description() != null && !dto.description().isEmpty()) this.description = dto.description();
+        if (dto.difficultyLevel() != null)  this.difficultyLevel = dto.difficultyLevel();
+        if (dto.deadline() != null) this.deadline = dto.deadline();
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
+
     @Override
     public User getCreatedBy() {
         return this.createdBy;
     }
 
-    public Challenge() {
-    }
 
 //<--  Getter -->
 

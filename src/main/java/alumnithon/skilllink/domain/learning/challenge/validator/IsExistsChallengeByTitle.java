@@ -15,14 +15,14 @@ public class IsExistsChallengeByTitle implements ValidatorsChallenge {
         this.challengeRepository = challengeRepository;
     }
     @Override
-    public void validatorsChallenge(Object data, Long id) {
+    public void validatorsChallenge(Object data, Long challengerId, Long createdId) {
         if (data instanceof ChallengeCreateDto requestDTO) {
-            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(requestDTO.title(), id)) {
+            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(requestDTO.title(), createdId)) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }
         } else if (data instanceof ChallengeUpdateDto updateDTO) {
-            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(updateDTO.title(), id)
-                    && !challengeRepository.findById(id).get().getTitle().equals(updateDTO.title())) {
+            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(updateDTO.title(), createdId)
+                    && !challengeRepository.findById(challengerId).get().getTitle().equals(updateDTO.title())) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }
         }

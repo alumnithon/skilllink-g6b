@@ -3,6 +3,7 @@ package alumnithon.skilllink.controller;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeCreateDto;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeDetailDto;
 import alumnithon.skilllink.domain.learning.challenge.dto.ChallengePreviewDto;
+import alumnithon.skilllink.domain.learning.challenge.dto.ChallengeUpdateDto;
 import alumnithon.skilllink.domain.learning.challenge.service.ChallengeService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +53,10 @@ public class ChallengeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-
+    @PutMapping("/mentor/{id}")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<ChallengeDetailDto> update( @PathVariable Long id, @Valid @RequestBody ChallengeUpdateDto dto) {
+        return ResponseEntity.ok(challengeService.updateChallengeByMentor(id, dto));
+    }
 
 }
