@@ -3,6 +3,8 @@ package alumnithon.skilllink.controller;
 import java.util.Map;
 
 import alumnithon.skilllink.domain.userprofile.dto.RegistrerProfileDto;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,8 @@ import jakarta.validation.ValidationException;
 
 @RestController
 @RequestMapping("/profile")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Gestión de Perfiles", description = "Endpoints para gestionar los perfiles de un usuario")
 public class ProfileController {
 
     @Autowired 

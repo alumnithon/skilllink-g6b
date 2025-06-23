@@ -1,5 +1,6 @@
 package alumnithon.skilllink.domain.auth.service;
 
+import alumnithon.skilllink.domain.auth.dto.AuthUserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import alumnithon.skilllink.domain.userprofile.repository.UserRepository;
 import alumnithon.skilllink.infrastructure.config.TokenService;
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
 public class AuthenticationService {
@@ -40,7 +42,17 @@ public class AuthenticationService {
             var userAuthenticated = authenticationManager.authenticate(authToken);
             logger.info("User successfully authenticated: {}", userAuthenticated.getName());
             var token  = tokenService.generateToken((User) userAuthenticated.getPrincipal());
-            return new AuthResponseDTO(token, user.getRole().name(), user.getName());
+            String imageUrl = user.getImage_url();
+            if (imageUrl != null && imageUrl.startsWith("/")) {
+                imageUrl = ServletUriComponentsBuilder
+                        .fromCurrentContextPath()
+                        .path(imageUrl)
+                        .toUriString();
+            }
+            return new AuthResponseDTO(
+                    new AuthUserDTO(user.getId(), user.getName() , user.getRole().name(), imageUrl),
+                    token
+            );
         } else {
             throw new AppException("Las credenciales proporcionadas son incorrectas.", ErrorCode.UNAUTHORIZED );
         }

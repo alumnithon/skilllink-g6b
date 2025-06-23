@@ -18,12 +18,6 @@ import jakarta.validation.Valid;
 @Tag(name = "Authentication", description = "Endpoints para autentificar usuario con email y contraseña.")
 public class AuthController {
 
-    // ruta publica de prueba
-    @GetMapping("/ping")
-    public String ping() {
-        return "SkillLink API is running 🚀";
-    }
-
     private final AuthenticationService authService;
 
     public AuthController(AuthenticationService authService) {

@@ -1,6 +1,8 @@
     package alumnithon.skilllink.controller;
 
     import java.util.Map;
+
+    import io.swagger.v3.oas.annotations.tags.Tag;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +16,8 @@
     import jakarta.validation.Valid;
     
     @RestController
-    @RequestMapping("/registrer")
+    @RequestMapping("/register")
+    @Tag(name = "Registrar Usuario", description = "Entpoints para registrar un usuario")
     public class RegisterController {
     
          
@@ -25,17 +28,9 @@
     
         @PostMapping 
         @Transactional
-        public ResponseEntity<?> cteateUser(@RequestBody @Valid RegisterRequestDto usuario) {
-            try {
-               registerService.createUser(usuario);
-            return ResponseEntity.status(HttpStatus.CREATED).body("User registred correctly");
-            } catch (ValidationException e) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of("error", e.getMessage()));
-            } catch (RuntimeException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(Map.of("error", "Internal Server Error"));
-            }
+        public ResponseEntity<?> createUser(@RequestBody @Valid RegisterRequestDto usuario) {
+             registerService.createUser(usuario);
+             return ResponseEntity.status(HttpStatus.CREATED).body("User registred correctly");
         }
     }
     

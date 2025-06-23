@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -66,7 +67,10 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ErrorCode.BAD_REQUEST, message);
     }
 
-
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return buildErrorResponse(ErrorCode.ACCESS_DENIED, ex.getMessage());
+    }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(ErrorCode errorCode, String message) {
         return ResponseEntity

@@ -1,0 +1,36 @@
+CREATE TABLE tags (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+INSERT INTO tags (id, name) VALUES
+(1, 'Java'),
+(2, 'Python'),
+(3, 'JavaScript'),
+(4, 'React'),
+(5, 'Angular'),
+(6, 'Vue.js'),
+(7, 'Spring Boot'),
+(8, 'Node.js'),
+(9, 'SQL'),
+(10, 'NoSQL'),
+(11, 'HTML'),
+(12, 'CSS'),
+(13, 'Tailwind CSS'),
+(14, 'Bootstrap'),
+(15, 'API REST'),
+(16, 'DevOps'),
+(17, 'Docker'),
+(18, 'Kubernetes'),
+(19, 'Diseño UX'),
+(20, 'Diseño UI'),
+(21, 'Adobe XD'),
+(22, 'Figma'),
+(23, 'Diseño gráfico'),
+(24, 'Photoshop'),
+(25, 'Illustrator'),
+(26, 'Prototipado'),
+(27, 'Testing'),
+(28, 'Git'),
+(29, 'Machine Learning'),
+(30, 'Inteligencia Artificial');
