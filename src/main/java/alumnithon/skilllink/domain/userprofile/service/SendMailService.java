@@ -1,6 +1,5 @@
 package alumnithon.skilllink.domain.userprofile.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,12 +9,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class SendMailService {
 
-    @Autowired
-    JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+    private final String frontendBaseUrl;
+    private final String appName;
 
-    @Value("${frontend.redirect.url:http://localhost:5173}")
-    private String frontendBaseUrl;
-
+    public SendMailService(JavaMailSender mailSender,
+            @Value("${frontend.redirect.url}") String frontendBaseUrl,
+            @Value("${spring.application.name}") String appName) {
+        this.mailSender = mailSender;
+        this.frontendBaseUrl = frontendBaseUrl;
+        this.appName = appName;
+    }
     public void sendVerificationEmail(String toEmail, String token) {
         String verificationUrl = frontendBaseUrl + "/register/confirm?token=" + token;
 
@@ -27,8 +31,9 @@ public class SendMailService {
     }
 
     private String buildEmailContent(String verificationUrl) {
-        return "Gracias por registrarte. Haz clic aquí para activar tu cuenta:\n\n" +
+        return "Gracias por registrarte en "+ appName +". Haz clic aquí para activar tu cuenta:\n\n" +
                 verificationUrl + "\n\n" +
-                "Este enlace expirará en 24 horas.";
+                "Este enlace expirará en 24 horas.\n\n" +
+                "Si no solicitaste este registro, por favor ignora este mensaje.";
     }
 }
