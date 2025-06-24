@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,6 +67,28 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", e.getMessage()));
         }
+    }
+    
+    @DeleteMapping("/me")
+    @Transactional
+    public ResponseEntity<?> DeleteProfile() {
+      try {
+        profileService.Delete();
+        return ResponseEntity.ok("Profile deleted correctly");
+      } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", e.getMessage()));
+      }
+    }
 
+    @GetMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> GetProfileById(@PathVariable Long id) {
+      try {
+        return ResponseEntity.ok(profileService.GetProfileById(id));
+      } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", e.getMessage()));
+      }
     }
   }
