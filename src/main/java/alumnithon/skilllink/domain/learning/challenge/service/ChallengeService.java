@@ -10,6 +10,9 @@ import alumnithon.skilllink.domain.learning.challenge.model.Challenge;
 import alumnithon.skilllink.domain.learning.challenge.repository.ChallengeRepository;
 import alumnithon.skilllink.domain.learning.challenge.validator.IsExistsChallengeByTitle;
 import alumnithon.skilllink.domain.learning.challenge.validator.ValidateChallengeByID;
+import alumnithon.skilllink.domain.learning.sharedLearning.dto.TagsToContentDTO;
+import alumnithon.skilllink.domain.learning.sharedLearning.model.ContentType;
+import alumnithon.skilllink.domain.learning.sharedLearning.service.ContentTagService;
 import alumnithon.skilllink.domain.learning.sharedLearning.validator.ValidatorCreatedBy;
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
@@ -26,25 +29,29 @@ public class ChallengeService {
     private final IsExistsChallengeByTitle isExistsChallengeByTitle;
     private final ValidateChallengeByID validateChallengeByID;
     private final ValidatorCreatedBy validatorCreatedBy;
+    private final ContentTagService contentTagService;
+    private final ChallengeMapper challengeMapper;
 
-    public ChallengeService(ChallengeRepository challengeRepository, AuthenticatedUserProvider userProvider, IsExistsChallengeByTitle isExistsChallengeByTitle, ValidateChallengeByID validateChallengeByID, ValidatorCreatedBy validatorCreatedBy) {
+    public ChallengeService(ChallengeRepository challengeRepository, AuthenticatedUserProvider userProvider, IsExistsChallengeByTitle isExistsChallengeByTitle, ValidateChallengeByID validateChallengeByID, ValidatorCreatedBy validatorCreatedBy, ContentTagService contentTagService, ChallengeMapper challengeMapper) {
         this.challengeRepository = challengeRepository;
         this.userProvider = userProvider;
         this.isExistsChallengeByTitle = isExistsChallengeByTitle;
         this.validateChallengeByID = validateChallengeByID;
         this.validatorCreatedBy = validatorCreatedBy;
+        this.contentTagService = contentTagService;
+        this.challengeMapper = challengeMapper;
     }
 
     //Ver challenger por mentor
     public Page<ChallengePreviewDto> getAllChallengesForMentor(Pageable pageable) {
         return challengeRepository.findByCreatedByIdAndEnabledTrue(userProvider.getCurrentUser().getId(), pageable)
-                .map(ChallengeMapper::toPreviewDto);
+                .map(challengeMapper::toPreviewDto);
     }
 
     public ChallengeDetailDto getChallengeByIdForMentor(Long id) {
         Challenge challenge = challengeRepository.findByIdAndEnabledTrueAndCreatedBy_Id(id, userProvider.getCurrentUser().getId())
                 .orElseThrow(() -> new AppException("Recurso no encontrado", ErrorCode.NOT_FOUND));
-        return ChallengeMapper.toDetailDto(challenge);
+        return challengeMapper.toDetailDto(challenge);
     }
 
     //Crear Challenger
@@ -53,9 +60,20 @@ public class ChallengeService {
         var creator = userProvider.getCurrentUser();
         //validar si ya existe challenge con el mismo title para el mismo creador
         isExistsChallengeByTitle.validatorsChallenge(dto,null, creator.getId());
-        Challenge challenge = ChallengeMapper.toEntity(dto, creator);
+        Challenge challenge = challengeMapper.toEntity(dto, creator);
         challengeRepository.save(challenge);
-        return ChallengeMapper.toPreviewDto(challenge);
+
+        // Agrega tags relacionados
+        if (dto.tagsName() != null && !dto.tagsName().isEmpty()) {
+            TagsToContentDTO tagsDTO = new TagsToContentDTO(
+                    ContentType.CHALLENGE,
+                    challenge.getId(),
+                    dto.tagsName()
+            );
+            contentTagService.addTagsToContent(tagsDTO);
+        }
+
+        return challengeMapper.toPreviewDto(challenge);
     }
 
     @Transactional
@@ -71,7 +89,7 @@ public class ChallengeService {
             isExistsChallengeByTitle.validatorsChallenge(dto, id, creatorId);
         }
         challenge.updateFromDto(dto);
-        return ChallengeMapper.toDetailDto(challenge);
+        return challengeMapper.toDetailDto(challenge);
     }
 
     @Transactional
@@ -81,17 +99,16 @@ public class ChallengeService {
         challenge.disable();
     }
 
-
     //<---- Rutas para todos los los usuarios autenticados  ---->
 
     public ChallengeDetailDto getChallengeById(Long id) {
         Challenge challenge = validateChallengeByID.validateExistsAndEnabled(id);
-        return ChallengeMapper.toDetailDto(challenge);
+        return challengeMapper.toDetailDto(challenge);
     }
 
     public Page<ChallengePreviewDto> getAllChallenges(Pageable pageable) {
         return challengeRepository.findAllByEnabledTrue(pageable)
-                .map(ChallengeMapper::toPreviewDto);
+                .map(challengeMapper::toPreviewDto);
     }
 
 

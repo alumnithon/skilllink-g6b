@@ -70,12 +70,12 @@ public class ChallengerControllerTest {
     private ChallengeDetailDto challengeDetailDto;
     private ChallengePreviewDto challengePreviewDto1;
     private ChallengePreviewDto challengePreviewDto2;
-
+    private final List<String> tags = List.of("React", "Spring boot");
     @BeforeEach
     void setUp() {
-        challengeDetailDto = new ChallengeDetailDto( 1L,"Desafio 1","Description Desafio 1", DifficultyLevel.BEGINNER, LocalDate.now(), LocalDate.now(), 1L, "User");
-        challengePreviewDto1 = new ChallengePreviewDto(1L,"Desafio 1", DifficultyLevel.BEGINNER, LocalDate.now());
-        challengePreviewDto2 = new ChallengePreviewDto( 2L, "Desafio 2", DifficultyLevel.BEGINNER, LocalDate.now());
+        challengeDetailDto = new ChallengeDetailDto( 1L,"Desafio 1","Description Desafio 1", DifficultyLevel.BEGINNER, LocalDate.now(), LocalDate.now(), 1L, "User", tags);
+        challengePreviewDto1 = new ChallengePreviewDto(1L,"Desafio 1", DifficultyLevel.BEGINNER, LocalDate.now(), tags);
+        challengePreviewDto2 = new ChallengePreviewDto( 2L, "Desafio 2", DifficultyLevel.BEGINNER, LocalDate.now(), tags);
     }
 
     @Test
@@ -142,7 +142,8 @@ public class ChallengerControllerTest {
                 "Desafio 1",
                 "Description Desafio 1",
                 DifficultyLevel.BEGINNER,
-                LocalDate.now()
+                LocalDate.now(),
+                tags
         );
 
         when(challengeServiceMock.createChallengeByMentor(any(ChallengeCreateDto.class)))

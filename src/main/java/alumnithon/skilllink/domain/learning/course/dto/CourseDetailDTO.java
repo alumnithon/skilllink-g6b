@@ -1,6 +1,7 @@
 package alumnithon.skilllink.domain.learning.course.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record CourseDetailDTO(
         Long id,
@@ -8,6 +9,7 @@ public record CourseDetailDTO(
         String description,
         Boolean hasCertification,
         String createdBy,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<String> tags
 ) {
 }

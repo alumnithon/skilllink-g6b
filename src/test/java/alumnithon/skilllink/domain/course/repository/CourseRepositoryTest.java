@@ -1,10 +1,7 @@
 package alumnithon.skilllink.domain.course.repository;
 
-import alumnithon.skilllink.domain.learning.challenge.model.Challenge;
-import alumnithon.skilllink.domain.learning.challenge.repository.ChallengeRepository;
 import alumnithon.skilllink.domain.learning.course.model.Course;
 import alumnithon.skilllink.domain.learning.course.repository.CourseRepository;
-import alumnithon.skilllink.domain.learning.sharedLearning.model.DifficultyLevel;
 import alumnithon.skilllink.domain.userprofile.model.Role;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import jakarta.persistence.EntityManager;
@@ -17,8 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -45,7 +40,7 @@ public class CourseRepositoryTest {
 
     @Test
     @DisplayName("Debe retornar true si existe un curso con título igual (ignorando mayúsculas) del mismo creador, enabled=true y creador específico")
-    void existsByTitleAndEnabledAndCreatedBy_returnsTrueWhenExists() {
+    void existsByTitleAndCreatedBy_returnsTrueWhenExists() {
         //given o arrange
         var course = registerCourse("Curso 1",user1);
 
@@ -53,7 +48,7 @@ public class CourseRepositoryTest {
         em.clear();
 
         //when o act
-        boolean exists = courseRepository.existsByTitleAndEnabledAndCreatedBy("Curso 1", user1.getId());
+        boolean exists = courseRepository.existsByTitleAndCreatedBy("Curso 1", user1.getId());
 
         //then o assert
         assertThat(exists).isTrue();
@@ -62,7 +57,7 @@ public class CourseRepositoryTest {
 
     @Test
     @DisplayName("Debe retornar false si el título no coincide")
-    void existsByTitleAndEnabledAndCreatedBy_returnsFalseWhenTitleDoesNotMatch() {
+    void existsByTitleAndCreatedBy_returnsFalseWhenTitleDoesNotMatch() {
         //Given or Arrange
         var course = registerCourse("Curso 2",user1);
 
@@ -70,7 +65,7 @@ public class CourseRepositoryTest {
         em.clear();
 
         //When or Act
-        boolean exists = courseRepository.existsByTitleAndEnabledAndCreatedBy("titulo diferente", user1.getId());
+        boolean exists = courseRepository.existsByTitleAndCreatedBy("titulo diferente", user1.getId());
 
         // Then or Assert
         assertThat(exists).isFalse();
@@ -78,7 +73,7 @@ public class CourseRepositoryTest {
 
     @Test
     @DisplayName("Debe retornar false si el titulo con igual texto no es del mismo creador")
-    void existsByTitleAndEnabledAndCreatedBy_returnsFalseWhenDisabled() {
+    void existsByTitleAndCreatedBy_returnsFalseWhenDisabled() {
         //Given or Arrange
         var course = registerCourse("Curso 2",user1);
 
@@ -86,7 +81,7 @@ public class CourseRepositoryTest {
         em.clear();
 
         //When or Act
-        boolean exists = courseRepository.existsByTitleAndEnabledAndCreatedBy("Curso 2", user2.getId());
+        boolean exists = courseRepository.existsByTitleAndCreatedBy("Curso 2", user2.getId());
 
         // Then or Assert
         assertThat(exists).isFalse();
