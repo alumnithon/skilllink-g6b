@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "challenges")
-@Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Challenge implements OwnableByMentor {
