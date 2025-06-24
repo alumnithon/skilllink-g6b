@@ -107,6 +107,14 @@ public class ProjectService {
         project.disable();
     }
 
+    @Transactional
+    public void changeProjectStatus(Long id, ProjectStatus status) {
+        Project project = validateProjectByID.validateExistsAndEnabled(id);
+        validatorCreatedBy.validateOwnedByMentor(project, userProvider.getCurrentUser().getId());
+        project.changeStatus(status);
+        projectRepository.save(project);
+    }
+
     //<---- Obtener projectos para cualuier tipo de usuario ----->
     public Page<ProjectPreviewDTO> getAllActiveProjects(Pageable pageable) {
         return projectRepository.findByStatusNot(ProjectStatus.ARCHIVED, pageable)
@@ -120,4 +128,6 @@ public class ProjectService {
 
         return projectMapper.toDetailDTO(project, contributions);
     }
+
+
 }

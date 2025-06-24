@@ -1,9 +1,7 @@
 package alumnithon.skilllink.controller;
 
-import alumnithon.skilllink.domain.learning.project.dto.ProjectCreateDTO;
-import alumnithon.skilllink.domain.learning.project.dto.ProjectDetailDTO;
-import alumnithon.skilllink.domain.learning.project.dto.ProjectPreviewDTO;
-import alumnithon.skilllink.domain.learning.project.dto.ProjectUpdateDTO;
+import alumnithon.skilllink.domain.learning.project.dto.*;
+import alumnithon.skilllink.domain.learning.project.service.ProjectContributionService;
 import alumnithon.skilllink.domain.learning.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final ProjectContributionService contributionService;
 
-    public ProjectController(ProjectService projectService) {
+    public ProjectController(ProjectService projectService, ProjectContributionService contributionService) {
         this.projectService = projectService;
+        this.contributionService = contributionService;
     }
 
     @GetMapping("/mentor")
@@ -80,5 +80,26 @@ public class ProjectController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(projectService.getAllActiveProjects(pageable));
+    }
+
+    @PatchMapping("/mentor/{id}/status")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<Void> changeProjectStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody ProjectStatusUpdateDTO statusDTO
+    ) {
+        projectService.changeProjectStatus(id, statusDTO.status());
+        return ResponseEntity.noContent().build();
+    }
+
+    //las contribuciones solos la deberan hacer os usuarios que esten enrolados o el creador del proyecto
+    @PostMapping("/{id}/contributions")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> addContribution(
+            @PathVariable Long id,
+            @Valid @RequestBody ProjectContributionCreateDTO dto
+    ){
+        contributionService.addContribution(id, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
