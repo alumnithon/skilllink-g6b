@@ -1,5 +1,6 @@
 package alumnithon.skilllink.domain.learning.project.model;
 
+import alumnithon.skilllink.domain.learning.project.dto.ProjectUpdateDTO;
 import alumnithon.skilllink.domain.learning.sharedLearning.interfaces.OwnableByMentor;
 import alumnithon.skilllink.domain.learning.sharedLearning.model.DifficultyLevel;
 import alumnithon.skilllink.domain.userprofile.model.User;
@@ -64,6 +65,18 @@ public class Project implements OwnableByMentor {
     @Override
     public User getCreatedBy() {
         return this.createdBy;
+    }
+
+    public void updateProject(ProjectUpdateDTO dto) {
+        if (dto.title() != null && !dto.title().isBlank()) {
+            this.title = dto.title();
+        }
+        if (dto.description() != null && !dto.description().isBlank()) {
+            this.description = dto.description();
+        }
+        if (dto.difficultyLevel() != null) {
+            this.difficultyLevel = dto.difficultyLevel();
+        }
     }
 
     // Getters y Setters

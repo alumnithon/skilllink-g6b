@@ -3,6 +3,7 @@ package alumnithon.skilllink.controller;
 import alumnithon.skilllink.domain.learning.project.dto.ProjectCreateDTO;
 import alumnithon.skilllink.domain.learning.project.dto.ProjectDetailDTO;
 import alumnithon.skilllink.domain.learning.project.dto.ProjectPreviewDTO;
+import alumnithon.skilllink.domain.learning.project.dto.ProjectUpdateDTO;
 import alumnithon.skilllink.domain.learning.project.service.ProjectService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +52,19 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    // Editar Proyectos
+    @PutMapping("/mentor/{id}")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<ProjectDetailDTO> updateProject(@PathVariable Long id, @Valid @RequestBody ProjectUpdateDTO dto) {
+        return ResponseEntity.ok(projectService.updateProjectByMentor(id, dto));
+    }
+    //Deshabilitar Proyectos
+    @DeleteMapping("/mentor/{id}")
+    @PreAuthorize("hasRole('MENTOR')")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+        projectService.disableProjectByMentor(id);
+        return ResponseEntity.noContent().build();
+    }
 
     //<---- Rutas para acceder cualquier usuario logueado ----->
 
