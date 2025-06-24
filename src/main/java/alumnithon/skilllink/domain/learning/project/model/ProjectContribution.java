@@ -55,6 +55,31 @@ public class ProjectContribution {
     }
 
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
 
+    public Project getProject() {
+        return project;
+    }
 
+    public User getUser() {
+        return user;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public ContributionType getContributionType() {
+        return contributionType;
+    }
+
+    public Integer getProgressContributed() {
+        return progressContributed;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }
