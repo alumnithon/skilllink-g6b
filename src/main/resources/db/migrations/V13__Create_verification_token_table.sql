@@ -5,7 +5,7 @@ CREATE TABLE verification_token (
     expiry_date DATETIME NOT NULL,
     CONSTRAINT fk_verification_token_user
         FOREIGN KEY (user_id) 
-        REFERENCES user(id)
+        REFERENCES `users`(id)  -- ¡Backticks aquí!
         ON DELETE CASCADE
 );
 

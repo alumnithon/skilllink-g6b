@@ -2,6 +2,8 @@ package alumnithon.skilllink.domain.userprofile.service;
 
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import alumnithon.skilllink.domain.userprofile.dto.RegisterRequestDto;
@@ -12,22 +14,24 @@ import alumnithon.skilllink.domain.userprofile.repository.UserRepository;
 import alumnithon.skilllink.domain.userprofile.repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+
 public class RegisterService {
 
     private final VerificationTokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SendMailService sendMailService;
+
     private static final String DEFAULT_AVATAR_URL = "/images/default-avatar.png";
 
+    @Autowired
     public RegisterService(UserRepository userRepository, PasswordEncoder passwordEncoder,
             VerificationTokenRepository tokenRepository, SendMailService sendMailService) {
         this.userRepository = userRepository;
@@ -46,6 +50,7 @@ public class RegisterService {
         User newUser = createUserFromDto(user);
         User savedUser = userRepository.save(newUser);
         sendVerificationEmail(savedUser);
+       
     }
     
     /*

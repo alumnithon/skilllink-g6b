@@ -23,7 +23,7 @@ public class VerificationToken {
         private String token;
 
         @OneToOne
-        @JoinColumn(name = "user_id", nullable = false)
+        @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
         private User user;
 
         @Column(nullable = false)

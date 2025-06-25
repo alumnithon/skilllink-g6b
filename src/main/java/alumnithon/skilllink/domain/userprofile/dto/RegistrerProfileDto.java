@@ -1,8 +1,10 @@
 package alumnithon.skilllink.domain.userprofile.dto;
 
-import jakarta.validation.constraints.Size;
-import java.util.List;
+import jakarta.validation.constraints.*;
 import java.util.Map;
+import java.util.List;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class RegistrerProfileDto {
     @Size(max = 500, message = "The maximum length of bio is 500 characters")
@@ -13,6 +15,7 @@ public class RegistrerProfileDto {
     private String visibility;
     private List<String> skills;
     private List<String> interests;
+    @Schema(description = "Redes sociales permitidas: linkedin, github, twitter, instagram, facebook, portfolio", example = "{\"linkedin\":\"https://linkedin.com/user\", \"github\":\"https://github.com/user\"}")
     private Map<String, String> socialLinks;
     private String contactEmail;
     private String contactPhone;
