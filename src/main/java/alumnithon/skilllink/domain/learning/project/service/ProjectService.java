@@ -129,5 +129,12 @@ public class ProjectService {
         return projectMapper.toDetailDTO(project, contributions);
     }
 
+    public ProjectPreviewDTO getProjectPreviewById(Long id) {
+        var project = projectRepository.findByIdAndStatusNot(id, ProjectStatus.ARCHIVED)
+                .orElseThrow(() -> new AppException("Project not found or disabled", ErrorCode.NOT_FOUND));
+
+        return projectMapper.toPreviewDTO(project);
+    }
+
 
 }

@@ -111,4 +111,10 @@ public class CourseService {
         return courseMapper.toDetailDTO(course);
     }
 
+    public CoursePreviewDTO getCoursePreviewById(Long id) {
+        var course = courseRepository.findByIdAndEnabledTrue(id)
+                .orElseThrow(() -> new AppException("Course not found or disabled", ErrorCode.NOT_FOUND));
+        return courseMapper.toPreviewDTO(course);
+    }
+
 }

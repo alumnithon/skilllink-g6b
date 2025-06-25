@@ -111,6 +111,10 @@ public class ChallengeService {
                 .map(challengeMapper::toPreviewDto);
     }
 
-
+    public ChallengePreviewDto getChallengePreviewById(Long id) {
+        var challenge = challengeRepository.findByIdAndEnabledTrue(id)
+                .orElseThrow(() -> new AppException("Challenge not found or disabled", ErrorCode.NOT_FOUND));
+        return challengeMapper.toPreviewDto(challenge);
+    }
 
 }
