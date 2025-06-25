@@ -3,6 +3,7 @@ package alumnithon.skilllink.domain.learning.challenge.dto;
 import alumnithon.skilllink.domain.learning.sharedLearning.model.DifficultyLevel;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ChallengeDetailDto(
         Long id,
@@ -12,6 +13,7 @@ public record ChallengeDetailDto(
         LocalDate createdAt,
         LocalDate deadline,
         Long createdByUserId,
-        String createdByUserName
+        String createdByUserName,
+        List<String> tags
 ) {
 }

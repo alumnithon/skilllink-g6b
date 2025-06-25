@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ChallengeCreateDto(
         @NotBlank(message = "El título es obligatorio")
@@ -26,6 +27,10 @@ public record ChallengeCreateDto(
         @FutureOrPresent
         @DateTimeFormat(pattern = "yyyy-MM-dd")
         @JsonFormat(pattern = "yyyy-MM-dd")
-        LocalDate deadline
+        LocalDate deadline,
+
+        @NotNull(message = "Debe proporcionar al menos un tag")
+        @Size(min = 1, message = "Debe proporcionar al menos un tag")
+        List<String> tagsName //Lista de tags para asociar
 ) {
 }
