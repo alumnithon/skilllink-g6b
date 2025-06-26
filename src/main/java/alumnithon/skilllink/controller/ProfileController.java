@@ -3,6 +3,7 @@ package alumnithon.skilllink.controller;
 import java.util.Map;
 
 import alumnithon.skilllink.domain.userprofile.dto.RegistrerProfileDto;
+import alumnithon.skilllink.domain.userprofile.dto.UpdateProfileDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class ProfileController {
 
       @PutMapping("/me")
       @Transactional
-      public ResponseEntity<?> UpdateProfile(@RequestBody @Valid RegistrerProfileDto updated){
+      public ResponseEntity<?> UpdateProfile(@RequestBody @Valid UpdateProfileDto updated){
         try{
             profileService.Update(updated);
             return ResponseEntity.ok("Profile updated correctly");

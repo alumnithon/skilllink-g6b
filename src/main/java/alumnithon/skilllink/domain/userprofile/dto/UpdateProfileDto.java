@@ -1,12 +1,12 @@
 package alumnithon.skilllink.domain.userprofile.dto;
 
-import jakarta.validation.constraints.*;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 
-public class RegistrerProfileDto {
+public class UpdateProfileDto {
     @Size(max = 500, message = "The maximum length of bio is 500 characters")
     private String bio;
     private String location;
@@ -21,9 +21,9 @@ public class RegistrerProfileDto {
     private String contactPhone;
     private Long countryId;
     private List<String> certifications;
-  
-
-
+    private String image_url;
+    private String name;
+    private String password;
     // ---Getter---
     public @Size(max = 500, message = "The maximum length of bio is 500 characters") String getBio() {
         return bio;
@@ -73,6 +73,17 @@ public class RegistrerProfileDto {
         return certifications;
     }
 
+    public String getImageUrl(){
+        return image_url;
+    }
+    
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
     //---Setter---
 
     public void setBio(@Size(max = 500, message = "The maximum length of bio is 500 characters") String bio) {
@@ -122,4 +133,17 @@ public class RegistrerProfileDto {
     public void setCertifications(List<String> certifications) {
         this.certifications = certifications;
     }
+    public void setImageUrl(String image_url){
+        this.image_url = image_url;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
+
+

@@ -6,14 +6,18 @@ import alumnithon.skilllink.domain.userprofile.model.*;
 import alumnithon.skilllink.domain.userprofile.repository.CountryRepository;
 import alumnithon.skilllink.domain.userprofile.repository.ProfileRepository;
 import alumnithon.skilllink.domain.userprofile.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import alumnithon.skilllink.domain.userprofile.dto.CountryDto;
 import alumnithon.skilllink.domain.userprofile.dto.CountryPrivateDto;
 import alumnithon.skilllink.domain.userprofile.dto.GetProfileDto;
 import alumnithon.skilllink.domain.userprofile.dto.GetProfilePrivateDTO;
 import alumnithon.skilllink.domain.userprofile.dto.RegistrerProfileDto;
+import alumnithon.skilllink.domain.userprofile.dto.UpdateProfileDto;
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
 
@@ -23,11 +27,14 @@ public class ProfileService{
     public final ProfileRepository profileRepository;
     private final UserRepository userRepository;
     private final CountryRepository countryRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository, CountryRepository countryRepository) {
+    @Autowired
+    public ProfileService(ProfileRepository profileRepository, UserRepository userRepository, CountryRepository countryRepository, PasswordEncoder passwordEncoder) {
         this.profileRepository = profileRepository;
         this.userRepository = userRepository;
         this.countryRepository = countryRepository;
+        this.passwordEncoder = passwordEncoder;    
     }
 
     public void Create(RegistrerProfileDto registred) {
@@ -41,8 +48,10 @@ public class ProfileService{
            if(profileRepository.existsByUser(user)){
             throw new AppException("Hay un perfil ya registrado para este usuario", ErrorCode.CONFLICT);
           }
-            //Se coonvierte de Datos mapeados con DTO a una Entidad para Persistir
-            Profile profile = new Profile();
+            
+          //Se coonvierte de Datos mapeados con DTO a una Entidad para Persistir
+         
+          Profile profile = new Profile();
             profile.setBio(registred.getBio());
             profile.setOccupation(registred.getOcupation());
             profile.setExperience(registred.getExperience());
@@ -51,7 +60,7 @@ public class ProfileService{
             profile.setSocialLinks(registred.getSocialLinks());
             profile.setContactEmail(registred.getContactEmail());
             profile.setContactPhone(registred.getContactPhone());
-            profile.setCountry(countryRepository.getById(registred.getCountryId()) );
+            profile.setCountry(countryRepository.findById(registred.getCountryId()).orElseThrow(() -> new AppException("País no encontrado", ErrorCode.INVALID_INPUT)));
             profile.setUser(user);
 
             //Solo Perfiles ROLE_ADMIN y ROLE_MENTOR Pueden guardar Certificaciones
@@ -111,7 +120,7 @@ public class ProfileService{
            return getProfileDto;        
     }
 
-    public void Update(RegistrerProfileDto update) {
+    public void Update(UpdateProfileDto update) {
 
         User user = getAuthenticatedUser();;
        
@@ -131,7 +140,12 @@ public class ProfileService{
         if (update.getSocialLinks() != null) profile.setSocialLinks(update.getSocialLinks());
         if (update.getContactEmail() != null) profile.setContactEmail(update.getContactEmail());
         if (update.getContactPhone() != null) profile.setContactPhone(update.getContactPhone());
-
+        if (update.getImageUrl() != null) user.setImage_url(update.getImageUrl());
+        if (update.getName() != null)
+            user.setName(update.getName());
+        if (update.getPassword() != null)
+            user.setPassword(passwordEncoder.encode(update.getPassword()));
+        
         // Actualizar país si viene un ID válido
         if (update.getCountryId() != null) {
             Country country = countryRepository.findById(update.getCountryId())

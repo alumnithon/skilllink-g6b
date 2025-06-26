@@ -49,7 +49,7 @@ public class RegisterService {
         validateEmail(user.getEmail());
         User newUser = createUserFromDto(user);
         User savedUser = userRepository.save(newUser);
-        sendVerificationEmail(savedUser);
+       // sendVerificationEmail(savedUser); //desactivado por falta de implementación en Frontend
        
     }
     
@@ -65,7 +65,7 @@ public class RegisterService {
 
     /*
       Crea una entidad User a partir del DTO de registro
-      retorna la entidad creada (con enabled=false)
+      retorna la entidad creada (con enabled=false)de momento se pone en true
      */
     private User createUserFromDto(RegisterRequestDto userDto) {
         User user = new User();
@@ -74,7 +74,7 @@ public class RegisterService {
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setRole(Role.valueOf(userDto.getRole()));
         user.setImage_url(processImageUrl(userDto.getImage_url()));
-        user.setEnabled(false);
+        user.setEnabled(true);
         return user;
     }
 
