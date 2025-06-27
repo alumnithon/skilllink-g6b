@@ -1,15 +1,15 @@
-ALTER TABLE challenges
+ALTER TABLE IF NOT EXISTSchallenges
 ADD CONSTRAINT unique_title_creator
 UNIQUE (title, created_by);
 
-ALTER TABLE courses
+ALTER TABLE IF NOT EXISTScourses
 ADD CONSTRAINT unique_title_creator
 UNIQUE (title, created_by);
 
-ALTER TABLE projects
+ALTER TABLE IF NOT EXISTSprojects
 ADD CONSTRAINT unique_title_creator
 UNIQUE (title, created_by);
 
-ALTER TABLE mentorships
+ALTER TABLE IF NOT EXISTSmentorships
 ADD CONSTRAINT unique_title_creator
 UNIQUE (title, created_by);

@@ -1,4 +1,4 @@
-CREATE TABLE challenges (
+CREATE TABLE IF NOT EXISTSchallenges (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE challenges (
     FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
-CREATE TABLE content_tags (
+CREATE TABLE IF NOT EXISTScontent_tags (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     content_type ENUM('COURSE', 'PROJECT', 'MENTORSHIP', 'CHALLENGE') NOT NULL,
     content_id BIGINT NOT NULL,
@@ -19,5 +19,5 @@ CREATE TABLE content_tags (
     UNIQUE (content_type, content_id, tag_id)
 );
 
-ALTER TABLE courses
+ALTER TABLE IF NOT EXISTScourses
 ADD COLUMN enabled BOOLEAN NOT NULL DEFAULT TRUE;
