@@ -19,7 +19,7 @@ public class UpdateProfileDto {
     private Map<String, String> socialLinks;
     private String contactEmail;
     private String contactPhone;
-    private Long countryId;
+    private Integer countryId;
     private List<String> certifications;
     private String image_url;
     private String name;
@@ -65,7 +65,7 @@ public class UpdateProfileDto {
         return contactPhone;
     }
 
-    public Long getCountryId() {
+    public Integer getCountryId() {
         return countryId;
     }
 
@@ -126,7 +126,7 @@ public class UpdateProfileDto {
         this.contactPhone = contactPhone;
     }
 
-    public void setCountryId(Long countryId) {
+    public void setCountryId(Integer countryId) {
         this.countryId = countryId;
     }
 

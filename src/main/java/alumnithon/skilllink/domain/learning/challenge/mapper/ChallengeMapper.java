@@ -7,8 +7,6 @@ import alumnithon.skilllink.domain.learning.challenge.model.Challenge;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 public class ChallengeMapper {
     // Crear Challenge a partir del DTO

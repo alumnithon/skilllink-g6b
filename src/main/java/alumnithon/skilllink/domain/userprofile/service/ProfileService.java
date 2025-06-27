@@ -16,7 +16,7 @@ import alumnithon.skilllink.domain.userprofile.dto.CountryDto;
 import alumnithon.skilllink.domain.userprofile.dto.CountryPrivateDto;
 import alumnithon.skilllink.domain.userprofile.dto.GetProfileDto;
 import alumnithon.skilllink.domain.userprofile.dto.GetProfilePrivateDTO;
-import alumnithon.skilllink.domain.userprofile.dto.RegistrerProfileDto;
+import alumnithon.skilllink.domain.userprofile.dto.RegisterProfileDto;
 import alumnithon.skilllink.domain.userprofile.dto.UpdateProfileDto;
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
@@ -37,7 +37,7 @@ public class ProfileService{
         this.passwordEncoder = passwordEncoder;    
     }
 
-    public void Create(RegistrerProfileDto registred) {
+    public void Create(RegisterProfileDto registred) {
       
             User user = getAuthenticatedUser();
             Long userId = user.getId();
@@ -148,8 +148,7 @@ public class ProfileService{
         
         // Actualizar país si viene un ID válido
         if (update.getCountryId() != null) {
-            Country country = countryRepository.findById(update.getCountryId())
-                    .orElseThrow(() ->  new AppException("Datos de idioma solicitado no existen", ErrorCode.INVALID_INPUT));
+            Country country = getValidatedCountry(update.getCountryId());
             profile.setCountry(country);
         }
 
@@ -259,5 +258,15 @@ public class ProfileService{
             throw new AppException("El Usuario no existe.", ErrorCode.UNAUTHORIZED);
         }
         return (User) authentication.getPrincipal();
+    }
+    
+    private Country getValidatedCountry(Integer countryId) {
+        if (countryId == null) {
+            return null;
+        }
+        return countryRepository.findById(countryId)
+                .orElseThrow(() -> new AppException(
+                        "País no encontrado con ID: " + countryId,
+                        ErrorCode.NOT_FOUND));
     }
     }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-public class RegistrerProfileDto {
+public class RegisterProfileDto {
     @Size(max = 500, message = "The maximum length of bio is 500 characters")
     private String bio;
     private String location;
@@ -19,7 +19,7 @@ public class RegistrerProfileDto {
     private Map<String, String> socialLinks;
     private String contactEmail;
     private String contactPhone;
-    private Long countryId;
+    private Integer countryId;
     private List<String> certifications;
   
 
@@ -65,7 +65,7 @@ public class RegistrerProfileDto {
         return contactPhone;
     }
 
-    public Long getCountryId() {
+    public Integer getCountryId() {
         return countryId;
     }
 
@@ -115,7 +115,7 @@ public class RegistrerProfileDto {
         this.contactPhone = contactPhone;
     }
 
-    public void setCountryId(Long countryId) {
+    public void setCountryId(Integer countryId) {
         this.countryId = countryId;
     }
 

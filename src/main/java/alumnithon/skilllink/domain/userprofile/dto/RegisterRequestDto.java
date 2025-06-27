@@ -1,8 +1,8 @@
 package alumnithon.skilllink.domain.userprofile.dto;
 
-import alumnithon.skilllink.domain.userprofile.model.Role;
 import jakarta.validation.constraints.*;
-
+import lombok.Setter;
+@Setter
 public class RegisterRequestDto {
 
     public RegisterRequestDto(String name, String email, String password, String image_url) {
@@ -47,4 +47,5 @@ public class RegisterRequestDto {
     public @NotBlank(message = "Role is required") @Pattern(regexp = "^(ROLE_USER|ROLE_ADMIN|ROLE_MENTOR)$", message = "Invalid role") String getRole() {
         return role;
     }
+
 }

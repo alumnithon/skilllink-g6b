@@ -2,7 +2,7 @@ package alumnithon.skilllink.controller;
 
 import java.util.Map;
 
-import alumnithon.skilllink.domain.userprofile.dto.RegistrerProfileDto;
+import alumnithon.skilllink.domain.userprofile.dto.RegisterProfileDto;
 import alumnithon.skilllink.domain.userprofile.dto.UpdateProfileDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,7 +33,7 @@ public class ProfileController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<?> CreateProfile(@RequestBody @Valid RegistrerProfileDto registred){
+    public ResponseEntity<?> CreateProfile(@RequestBody @Valid RegisterProfileDto registred){
       try{
         profileService.Create( registred);
           return ResponseEntity.status(HttpStatus.CREATED).body("Profile registred correctly");

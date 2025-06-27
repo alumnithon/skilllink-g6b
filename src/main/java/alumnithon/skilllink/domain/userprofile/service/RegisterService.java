@@ -48,7 +48,8 @@ public class RegisterService {
     public void createUser(@Valid RegisterRequestDto user) {
         validateEmail(user.getEmail());
         User newUser = createUserFromDto(user);
-        User savedUser = userRepository.save(newUser);
+      //  User savedUser = 
+      userRepository.save(newUser);
        // sendVerificationEmail(savedUser); //desactivado por falta de implementación en Frontend
        
     }

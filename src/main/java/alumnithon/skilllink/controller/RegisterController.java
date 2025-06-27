@@ -32,7 +32,7 @@ public class RegisterController {
     }
 
     @GetMapping("/confirm")
-    public ResponseEntity<?> confirmarCuenta(@RequestParam("token") String token) {
+    public ResponseEntity<?> confirmToken(@RequestParam("token") String token) {
         registerService.confirmAndActivateUser(token);
         return ResponseEntity.status(HttpStatus.FOUND).body("Cuenta activada correctamente");
     }
