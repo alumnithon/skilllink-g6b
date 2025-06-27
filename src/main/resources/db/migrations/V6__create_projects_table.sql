@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTSprojects (
+CREATE TABLE IF NOT EXISTS projects (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTSprojects (
 );
 
 
-CREATE TABLE IF NOT EXISTSproject_contributions (
+CREATE TABLE IF NOT EXISTS project_contributions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     project_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
