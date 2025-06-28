@@ -10,6 +10,9 @@ import alumnithon.skilllink.domain.learning.course.model.Course;
 import alumnithon.skilllink.domain.learning.course.repository.CourseRepository;
 import alumnithon.skilllink.domain.learning.course.validator.IsExistsCourseByTitle;
 import alumnithon.skilllink.domain.learning.course.validator.ValidateCourseByID;
+import alumnithon.skilllink.domain.learning.sharedLearning.dto.TagsToContentDTO;
+import alumnithon.skilllink.domain.learning.sharedLearning.model.ContentType;
+import alumnithon.skilllink.domain.learning.sharedLearning.service.ContentTagService;
 import alumnithon.skilllink.domain.learning.sharedLearning.validator.ValidatorCreatedBy;
 import alumnithon.skilllink.shared.exception.AppException;
 import alumnithon.skilllink.shared.exception.ErrorCode;
@@ -29,18 +32,22 @@ public class CourseService {
     private final IsExistsCourseByTitle isExistsCourseByTitle;
     private final ValidateCourseByID validateCourseByID;
     private final ValidatorCreatedBy validatorCreatedBy;
+    private final ContentTagService contentTagService;
+    private final CourseMapper courseMapper;
 
-    public CourseService(CourseRepository courseRepository, AuthenticatedUserProvider userProvider, IsExistsCourseByTitle isExistsCourseByTitle, ValidateCourseByID validateCourseByID, ValidatorCreatedBy validatorCreatedBy) {
+    public CourseService(CourseRepository courseRepository, AuthenticatedUserProvider userProvider, IsExistsCourseByTitle isExistsCourseByTitle, ValidateCourseByID validateCourseByID, ValidatorCreatedBy validatorCreatedBy, ContentTagService contentTagService, CourseMapper courseMapper) {
         this.courseRepository = courseRepository;
         this.userProvider = userProvider;
         this.isExistsCourseByTitle = isExistsCourseByTitle;
         this.validateCourseByID = validateCourseByID;
         this.validatorCreatedBy = validatorCreatedBy;
+        this.contentTagService = contentTagService;
+        this.courseMapper = courseMapper;
     }
 
     public Page<CoursePreviewDTO> getAllEnabledCoursesByMentor(Pageable pageable) {
         return courseRepository.findByCreatedByIdAndEnabledTrue(userProvider.getCurrentUser().getId(), pageable)
-                .map(CourseMapper::toPreviewDTO);
+                .map(courseMapper::toPreviewDTO);
     }
 
     public CourseDetailDTO getEnabledCourseByIdForMentor(Long id) {
@@ -48,15 +55,25 @@ public class CourseService {
         Course course = courseRepository.findByIdAndEnabledTrueAndCreatedBy_Id(id, userProvider.getCurrentUser().getId())
                 .orElseThrow(() -> new AppException("Recurso no encontrado", ErrorCode.NOT_FOUND));
 
-        return CourseMapper.toDetailDTO(course);
+        return courseMapper.toDetailDTO(course);
     }
 
     public CoursePreviewDTO createCourseByMentor(@Valid CourseCreateDTO dto) {
         var creator = userProvider.getCurrentUser();
         isExistsCourseByTitle.validatorsCourse(dto,null, creator.getId());
-        Course course = CourseMapper.toEntity(dto, creator);
+        Course course = courseMapper.toEntity(dto, creator);
         courseRepository.save(course);
-        return CourseMapper.toPreviewDTO(course);
+
+        // Agrega tags relacionados
+        if (dto.tagsName() != null && !dto.tagsName().isEmpty()) {
+            TagsToContentDTO tagsDTO = new TagsToContentDTO(
+                    ContentType.COURSE,
+                    course.getId(),
+                    dto.tagsName()
+            );
+            contentTagService.addTagsToContent(tagsDTO);
+        }
+        return courseMapper.toPreviewDTO(course);
     }
 
     @Transactional
@@ -70,7 +87,7 @@ public class CourseService {
         }
 
         course.update(dto);
-        return CourseMapper.toDetailDTO(course);
+        return courseMapper.toDetailDTO(course);
     }
 
     @Transactional
@@ -83,7 +100,7 @@ public class CourseService {
     //<---- Servicios publicos para ver los cursos de usuarios autenticados ---->
     public List<CoursePreviewDTO> getAllEnabledCourses() {
         return courseRepository.findByEnabledTrue().stream()
-                .map(CourseMapper::toPreviewDTO)
+                .map(courseMapper::toPreviewDTO)
                 .toList();
     }
 
@@ -91,7 +108,13 @@ public class CourseService {
         Course course = courseRepository.findByIdAndEnabledTrue(id)
                 .orElseThrow(() -> new AppException("Course not found or disabled", ErrorCode.NOT_FOUND));
 
-        return CourseMapper.toDetailDTO(course);
+        return courseMapper.toDetailDTO(course);
+    }
+
+    public CoursePreviewDTO getCoursePreviewById(Long id) {
+        var course = courseRepository.findByIdAndEnabledTrue(id)
+                .orElseThrow(() -> new AppException("Course not found or disabled", ErrorCode.NOT_FOUND));
+        return courseMapper.toPreviewDTO(course);
     }
 
 }

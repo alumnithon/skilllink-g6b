@@ -17,11 +17,11 @@ public class IsExistsChallengeByTitle implements ValidatorsChallenge {
     @Override
     public void validatorsChallenge(Object data, Long challengerId, Long createdId) {
         if (data instanceof ChallengeCreateDto requestDTO) {
-            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(requestDTO.title(), createdId)) {
+            if (challengeRepository.existsByTitleAndCreatedBy(requestDTO.title(), createdId)) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }
         } else if (data instanceof ChallengeUpdateDto updateDTO) {
-            if (challengeRepository.existsByTitleAndEnabledAndCreatedBy(updateDTO.title(), createdId)
+            if (challengeRepository.existsByTitleAndCreatedBy(updateDTO.title(), createdId)
                     && !challengeRepository.findById(challengerId).get().getTitle().equals(updateDTO.title())) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +44,7 @@ public class ChallengeRespositoryTest {
 
     @Test
     @DisplayName("Debe retornar true si existe un reto con título igual (ignorando mayúsculas) del mismo creador, enabled=true y creador específico")
-    void existsByTitleAndEnabledAndCreatedBy_returnsTrueWhenExists() {
+    void existsByTitleAndCreatedBy_returnsTrueWhenExists() {
         //given o arrange
         registerChallenge("Reto Unico", user1);
 
@@ -53,7 +52,7 @@ public class ChallengeRespositoryTest {
         em.clear();
 
         //when o act
-        boolean exists = challengeRepository.existsByTitleAndEnabledAndCreatedBy("Reto Unico", user1.getId());
+        boolean exists = challengeRepository.existsByTitleAndCreatedBy("Reto Unico", user1.getId());
 
         //then o assert
         assertThat(exists).isTrue();
@@ -61,7 +60,7 @@ public class ChallengeRespositoryTest {
 
     @Test
     @DisplayName("Debe retornar false si el título no coincide")
-    void existsByTitleAndEnabledAndCreatedBy_returnsFalseWhenTitleDoesNotMatch() {
+    void existsByTitleAndCreatedBy_returnsFalseWhenTitleDoesNotMatch() {
         // Given o arrange
         registerChallenge("Reto 1", user1);
 
@@ -69,7 +68,7 @@ public class ChallengeRespositoryTest {
         em.clear();
 
         // When o Act
-        boolean exists = challengeRepository.existsByTitleAndEnabledAndCreatedBy("titulo diferente", user1.getId());
+        boolean exists = challengeRepository.existsByTitleAndCreatedBy("titulo diferente", user1.getId());
 
         // Then o Assert
         assertThat(exists).isFalse();
@@ -77,7 +76,7 @@ public class ChallengeRespositoryTest {
 
     @Test
     @DisplayName("Debe retornar false si el titulo con igual texto no es del mismo creador")
-    void existsByTitleAndEnabledAndCreatedBy_returnsFalseWhenDisabled() {
+    void existsByTitleAndCreatedBy_returnsFalseWhenDisabled() {
         // Given o arrange
         registerChallenge("Reto 2", user1);
 
@@ -85,7 +84,7 @@ public class ChallengeRespositoryTest {
         em.clear();
 
         // When o Act
-        boolean exists = challengeRepository.existsByTitleAndEnabledAndCreatedBy("Reto 2", user2.getId());
+        boolean exists = challengeRepository.existsByTitleAndCreatedBy("Reto 2", user2.getId());
 
         // Then o Assert
         assertThat(exists).isFalse();

@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,12 +73,12 @@ public class CourseControllerTest {
     private CourseDetailDTO courseDetailDTO;
     private CoursePreviewDTO coursePreviewDTO1;
     private CoursePreviewDTO coursePreviewDTO2;
-
+    private final List<String> tags = List.of("React", "Spring boot");
     @BeforeEach
     void setUp() {
-        courseDetailDTO = new CourseDetailDTO( 1L,"Curso 1","Description curso 1", Boolean.TRUE,"mentor", LocalDateTime.now());
-        coursePreviewDTO1 = new CoursePreviewDTO(1L,"Curso 1", "Description curso 1", Boolean.TRUE);
-        coursePreviewDTO2 = new CoursePreviewDTO(2L,"Curso 2", "Description curso 2", Boolean.TRUE);
+        courseDetailDTO = new CourseDetailDTO(1L, "Curso 1", "Description curso 1", Boolean.TRUE, "mentor", LocalDateTime.now(), tags);
+        coursePreviewDTO1 = new CoursePreviewDTO(1L,"Curso 1", "Description curso 1", Boolean.TRUE, tags);
+        coursePreviewDTO2 = new CoursePreviewDTO(2L,"Curso 2", "Description curso 2", Boolean.TRUE, tags);
     }
 
 
@@ -149,7 +150,8 @@ public class CourseControllerTest {
         CourseCreateDTO request = new CourseCreateDTO(
                 "Curso 1",
                 "Description curso 1",
-                true
+                true,
+                tags
         );
 
         when(courseServiceMock.createCourseByMentor(any(CourseCreateDTO.class)))

@@ -1,4 +1,4 @@
-CREATE TABLE  notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL, -- receptor de la notificación
     type VARCHAR(50) NOT NULL, -- ejemplo: 'MENTOR_REQUEST', 'MESSAGE', 'COURSE_PROGRESS'

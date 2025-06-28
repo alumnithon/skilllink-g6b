@@ -18,11 +18,11 @@ public class IsExistsCourseByTitle implements ValidatorsCourse {
     @Override
     public void validatorsCourse(Object data, Long CourserId, Long createdId) {
         if (data instanceof CourseCreateDTO requestDTO) {
-            if (courseRepository.existsByTitleAndEnabledAndCreatedBy(requestDTO.title(), createdId)) {
+            if (courseRepository.existsByTitleAndCreatedBy(requestDTO.title(), createdId)) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }
         } else if (data instanceof CourseUpdateDTO updateDTO) {
-            if (courseRepository.existsByTitleAndEnabledAndCreatedBy(updateDTO.title(), createdId)
+            if (courseRepository.existsByTitleAndCreatedBy(updateDTO.title(), createdId)
                     && !courseRepository.findById(CourserId).get().getTitle().equals(updateDTO.title())) {
                 throw new AppException("Ya existe un desafio con ese título", ErrorCode.CONFLICT);
             }

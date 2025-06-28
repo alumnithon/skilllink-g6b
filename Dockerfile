@@ -7,16 +7,18 @@ WORKDIR /app
 # Accept build argument for Maven profile
 ARG MAVEN_PROFILE=prod
 
-# Copy Maven wrapper and pom.xml first for dependency caching
-COPY --link pom.xml mvnw ./
-COPY --link .mvn .mvn/
-RUN chmod +x mvnw && ./mvnw dependency:go-offline
+# Disable caching for Maven dependencies and Flyway migrations
+# Copy Maven wrapper and pom.xml
+COPY pom.xml mvnw ./
+COPY .mvn .mvn/
+RUN chmod +x mvnw && ./mvnw dependency:go-offline --no-transfer-progress
 
 # Copy the rest of the source code
-COPY --link src ./src/
+COPY src ./src/
 
 # Build the application with specified profile (skip tests for faster build)
-RUN ./mvnw package -DskipTests -P${MAVEN_PROFILE}
+# Disable caching for Flyway migrations by forcing a clean build
+RUN ./mvnw clean package -DskipTests -P${MAVEN_PROFILE} --no-transfer-progress
 
 # --- Runtime stage ---
 FROM eclipse-temurin:21-jre-alpine AS runtime

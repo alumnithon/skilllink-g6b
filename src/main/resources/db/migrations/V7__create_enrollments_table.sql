@@ -1,5 +1,5 @@
 -- tabla que permite unirse a tipos de contenidos distintos (PROJECT, COURSE, CHALLENGE)
-CREATE TABLE enrollments (
+CREATE TABLE IF NOT EXISTS enrollments (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     content_type ENUM('PROJECT', 'COURSE', 'CHALLENGE') NOT NULL,

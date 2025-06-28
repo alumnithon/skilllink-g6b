@@ -1,5 +1,5 @@
 
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL UNIQUE,
     bio TEXT,
@@ -17,16 +17,16 @@ CREATE TABLE profiles (
 );
 
 
-CREATE TABLE profile_certifications (
+CREATE TABLE IF NOT EXISTS profile_certifications (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     profile_id BIGINT NOT NULL,
     title VARCHAR(120) NOT NULL,
     certification_url TEXT NULL,
-    PRIMARY KEY (profile_id),
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
 
-CREATE TABLE profile_social_links (
+CREATE TABLE IF NOT EXISTS profile_social_links (
     profile_id BIGINT NOT NULL,
     platform VARCHAR(50) NOT NULL,
     url TEXT NOT NULL,
@@ -34,7 +34,8 @@ CREATE TABLE profile_social_links (
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE profile_skills (
+CREATE TABLE IF NOT EXISTS profile_skills (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     profile_id BIGINT NOT NULL,
     skill VARCHAR(100) NOT NULL,
     CONSTRAINT fk_profile_skill FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
@@ -42,8 +43,9 @@ CREATE TABLE profile_skills (
 
 
 -- Tabla para intereses
-CREATE TABLE profile_interests (
-    profile_id BIGINT NOT NULL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS profile_interests (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    profile_id BIGINT NOT NULL,
     interest VARCHAR(255),
     CONSTRAINT fk_interest_profile FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );

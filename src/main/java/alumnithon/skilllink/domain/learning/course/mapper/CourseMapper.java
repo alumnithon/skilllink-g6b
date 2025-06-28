@@ -4,14 +4,24 @@ import alumnithon.skilllink.domain.learning.course.dto.CourseCreateDTO;
 import alumnithon.skilllink.domain.learning.course.dto.CourseDetailDTO;
 import alumnithon.skilllink.domain.learning.course.dto.CoursePreviewDTO;
 import alumnithon.skilllink.domain.learning.course.model.Course;
+import alumnithon.skilllink.domain.learning.sharedLearning.model.ContentType;
+import alumnithon.skilllink.domain.learning.sharedLearning.service.ContentTagService;
 import alumnithon.skilllink.domain.userprofile.model.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 public class CourseMapper {
-    public static Course toEntity(CourseCreateDTO dto, User creator) {
+
+    private final ContentTagService contentTagService;
+
+    public CourseMapper(ContentTagService contentTagService) {
+        this.contentTagService = contentTagService;
+    }
+
+    public Course toEntity(CourseCreateDTO dto, User creator) {
         return new Course(
                 dto.title(),
                 dto.description(),
@@ -28,23 +38,29 @@ public class CourseMapper {
 //                .build();
     }
 
-    public static CoursePreviewDTO toPreviewDTO(Course course) {
+    public CoursePreviewDTO toPreviewDTO(Course course) {
+        List<String> tagNames = contentTagService.getTagNamesByContent(ContentType.COURSE, course.getId());
+
         return new CoursePreviewDTO(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
-                course.getHasCertification()
+                course.getHasCertification(),
+                tagNames
         );
     }
 
-    public static CourseDetailDTO toDetailDTO(Course course) {
+    public CourseDetailDTO toDetailDTO(Course course) {
+        List<String> tagNames = contentTagService.getTagNamesByContent(ContentType.COURSE, course.getId());
+
         return new CourseDetailDTO(
                 course.getId(),
                 course.getTitle(),
                 course.getDescription(),
                 course.getHasCertification(),
                 course.getCreatedBy().getName(),
-                course.getCreatedAt()
+                course.getCreatedAt(),
+                tagNames
         );
     }
 }

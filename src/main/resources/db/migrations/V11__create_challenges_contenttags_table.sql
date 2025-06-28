@@ -1,4 +1,4 @@
-CREATE TABLE challenges (
+CREATE TABLE IF NOT EXISTS challenges (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE challenges (
     FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
-CREATE TABLE content_tags (
+CREATE TABLE IF NOT EXISTS content_tags (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     content_type ENUM('COURSE', 'PROJECT', 'MENTORSHIP', 'CHALLENGE') NOT NULL,
     content_id BIGINT NOT NULL,

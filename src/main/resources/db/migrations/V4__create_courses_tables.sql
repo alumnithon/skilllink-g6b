@@ -1,4 +1,4 @@
-CREATE TABLE courses (
+CREATE TABLE IF NOT EXISTS courses (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -8,7 +8,7 @@ CREATE TABLE courses (
     CONSTRAINT fk_course_user FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
-CREATE TABLE  certifications (
+CREATE TABLE IF NOT EXISTS  certifications (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     content_type ENUM('COURSE', 'PROJECT') NOT NULL,

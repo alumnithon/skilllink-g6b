@@ -15,6 +15,6 @@ public interface ChallengeRepository extends JpaRepository<Challenge, Long> {
     Optional<Challenge> findByIdAndEnabledTrueAndCreatedBy_Id(Long id, Long createdBy_Id);
     Page<Challenge> findByCreatedByIdAndEnabledTrue(Long mentorId, Pageable pageable);
 
-    @Query("SELECT COUNT(c.id) > 0 FROM Challenge c WHERE LOWER(c.title) = LOWER(:title) AND c.enabled = true AND c.createdBy.id = :createdById")
-    boolean existsByTitleAndEnabledAndCreatedBy(@Param("title") String title, @Param("createdById") Long createdById);
+    @Query("SELECT COUNT(c.id) > 0 FROM Challenge c WHERE LOWER(c.title) = LOWER(:title) AND c.createdBy.id = :createdById")
+    boolean existsByTitleAndCreatedBy(@Param("title") String title, @Param("createdById") Long createdById);
 }
