@@ -1,10 +1,13 @@
 package alumnithon.skilllink.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,16 +32,18 @@ public class ProfileRepositoryTest {
         expectedProfile.setUser(user);
 
         // 2. Configurar el comportamiento del mock
-        when(profileRepository.findByUser(user)).thenReturn(expectedProfile);
+        when(profileRepository.findByUser(user)).thenReturn(Optional.of(expectedProfile));
 
         // 3. Ejecutar el método bajo prueba
-        Profile result = profileRepository.findByUser(user);
+        Optional<Profile> result = profileRepository.findByUser(user);
 
-        // 4. Verificar los resultados
-        assertNotNull(result, "El perfil no debería ser nulo");
-        assertEquals(expectedProfile.getId(), result.getId(), "Los IDs de perfil deberían coincidir");
-        assertEquals(user, result.getUser(), "Los usuarios deberían coincidir");
-        
+       // 4. Verificar los resultados
+    assertTrue(result.isPresent(), "El perfil debería estar presente");
+    Profile actualProfile = result.get();
+    
+    assertEquals(expectedProfile.getId(), actualProfile.getId(), "Los IDs de perfil deberían coincidir");
+    assertEquals(user, actualProfile.getUser(), "Los usuarios deberían coincidir");
+    
         // 5. Verificar interacciones con el mock
         verify(profileRepository, times(1)).findByUser(user);
     }

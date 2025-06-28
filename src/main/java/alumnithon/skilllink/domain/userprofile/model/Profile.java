@@ -1,10 +1,9 @@
 package alumnithon.skilllink.domain.userprofile.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +11,6 @@ import java.util.Map;
 
 @Entity
 @Table(name = "profiles")
-@NoArgsConstructor
-@AllArgsConstructor
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,45 +36,42 @@ public class Profile {
     @Column(nullable = false, length = 10)
     private ProfileVisibility visibility = ProfileVisibility.PUBLIC;
 
-    // se relaciona con tabla de Habilidades técnicas
+    // Habilidades técnicas
     @ElementCollection
     @CollectionTable(name = "profile_skills", joinColumns = @JoinColumn(name = "profile_id"))
     @Column(name = "skill")
     private List<String> skills = new ArrayList<>();
 
+    // Intereses - Mapeo especial para tabla con PK en profile_id
     @ElementCollection
     @CollectionTable(name = "profile_interests", joinColumns = @JoinColumn(name = "profile_id"))
     @Column(name = "interest")
     private List<String> interests = new ArrayList<>();
 
-    // Enlaces a redes sociales
+    // Redes sociales
     @ElementCollection
     @CollectionTable(name = "profile_social_links", joinColumns = @JoinColumn(name = "profile_id"))
     @MapKeyColumn(name = "platform")
     @Column(name = "url")
     private Map<String, String> socialLinks = new HashMap<>();
 
-    // Datos de contacto: correo alterno o teléfono (opcional)
+    // Certificaciones - Mapeo especial para tabla con PK en profile_id
+    @ElementCollection
+    @CollectionTable(name = "profile_certifications", joinColumns = @JoinColumn(name = "profile_id"))
+    private List<Certification> certifications = new ArrayList<>();
+
     @Column(name = "contact_email")
     private String contactEmail;
 
     @Column(name = "contact_phone", length = 20)
     private String contactPhone;
 
-    // País opcional (relación externa si se usa tabla de país)
     @ManyToOne
     @JoinColumn(name = "country_id")
     private Country country;
 
-    // Solo si es mentor: certificaciones (nombres o URLs)
-    @ElementCollection
-    @CollectionTable(name = "profile_certifications", joinColumns = @JoinColumn(name = "profile_id"))
-    @Column(name = "certification")
-    private List<String> certifications = new ArrayList<>();
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
     //---Getter---
 
     public Long getId() {
@@ -109,15 +103,15 @@ public class Profile {
     }
 
     public List<String> getSkills() {
-        return skills;
+        return Collections.unmodifiableList(skills);
     }
 
     public List<String> getInterests() {
-        return interests;
+        return Collections.unmodifiableList(interests);
     }
 
     public Map<String, String> getSocialLinks() {
-        return socialLinks;
+        return Collections.unmodifiableMap(socialLinks);
     }
 
     public String getContactEmail() {
@@ -132,8 +126,8 @@ public class Profile {
         return country;
     }
 
-    public List<String> getCertifications() {
-        return certifications;
+    public List<Certification> getCertifications() {
+        return Collections.unmodifiableList(certifications);
     }
 
     public LocalDateTime getCreatedAt() {
@@ -172,15 +166,24 @@ public class Profile {
     }
 
     public void setSkills(List<String> skills) {
-        this.skills = skills;
+        this.skills.clear();
+        if (skills != null) {
+            this.skills.addAll(skills);
+        }
     }
 
     public void setInterests(List<String> interests) {
-        this.interests = interests;
+        this.interests.clear();
+        if (interests != null) {
+            this.interests.addAll(interests);
+        }
     }
-
+   
     public void setSocialLinks(Map<String, String> socialLinks) {
-        this.socialLinks = socialLinks;
+        this.socialLinks.clear();
+        if (socialLinks != null) {
+            this.socialLinks.putAll(socialLinks);
+        }
     }
 
     public void setContactEmail(String contactEmail) {
@@ -195,11 +198,55 @@ public class Profile {
         this.country = country;
     }
 
-    public void setCertifications(List<String> certifications) {
-        this.certifications = certifications;
+    public void setCertifications(List<Certification> certifications) {
+        this.certifications.clear();
+        if (certifications != null) {
+            this.certifications.addAll(certifications);
+        }
     }
-
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+    // --- MÉTODOS PARA MANIPULACIÓN CONTROLADA ---
+    
+    public void addSkill(String skill) {
+        if (skill != null && !skill.trim().isEmpty()) {
+            this.skills.add(skill);
+        }
+    }
+
+    public void removeSkill(String skill) {
+        this.skills.remove(skill);
+    }
+
+    public void addInterest(String interest) {
+        if (interest != null && !interest.trim().isEmpty()) {
+            this.interests.add(interest);
+        }
+    }
+
+    public void removeInterest(String interest) {
+        this.interests.remove(interest);
+    }
+
+    public void addSocialLink(String platform, String url) {
+        if (platform != null && url != null) {
+            this.socialLinks.put(platform, url);
+        }
+    }
+
+    public void removeSocialLink(String platform) {
+        this.socialLinks.remove(platform);
+    }
+
+    public void addCertification(Certification certification) {
+        if (certification != null) {
+            this.certifications.add(certification);
+        }
+    }
+
+    public void removeCertification(Certification certification) {
+        this.certifications.remove(certification);
+    }
 }
+

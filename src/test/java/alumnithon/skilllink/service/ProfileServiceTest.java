@@ -1,5 +1,6 @@
 package alumnithon.skilllink.service;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.Optional;
@@ -75,7 +76,7 @@ public class ProfileServiceTest {
         when(authentication.getPrincipal()).thenReturn(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(profileRepository.findByUser(user)).thenReturn(profile);
+        when(profileRepository.findByUser(user)).thenReturn(Optional.of(profile)); 
 
         // Act
         GetProfileDto result = profileService.GetProfile();
@@ -95,7 +96,7 @@ public class ProfileServiceTest {
 
         when(authentication.getPrincipal()).thenReturn(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        when(profileRepository.findByUser(user)).thenReturn(profile);
+        when(profileRepository.findByUser(user)).thenReturn(Optional.of(profile)); 
 
         // Act
         profileService.Update(dto);
@@ -113,7 +114,7 @@ public class ProfileServiceTest {
 
         when(authentication.getPrincipal()).thenReturn(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        when(profileRepository.findByUser(user)).thenReturn(profile);
+        when(profileRepository.findByUser(user)).thenReturn(Optional.of(profile)); 
 
         // Act
         profileService.Delete();

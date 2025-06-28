@@ -7,7 +7,7 @@ public class GetProfileDto {
    private UserDto user;
    private String bio;
    private String location;
-   private String ocupation;
+   private String occupation;
    private String experience;
    private String visibility;
    private List<String> skills;
@@ -16,7 +16,7 @@ public class GetProfileDto {
    private String contactEmail;
    private String contactPhone;
    private CountryDto country;
-   private List<String> certifications;
+   private List<CertificationDto> certifications;
 
    //---Getter---
 
@@ -32,8 +32,8 @@ public class GetProfileDto {
       return location;
    }
 
-   public String getOcupation() {
-      return ocupation;
+   public String getOccupation() {
+      return occupation;
    }
 
    public String getExperience() {
@@ -68,7 +68,7 @@ public class GetProfileDto {
       return country;
    }
 
-   public List<String> getCertifications() {
+   public List<CertificationDto> getCertifications() {
       return certifications;
    }
 
@@ -86,8 +86,8 @@ public class GetProfileDto {
       this.location = location;
    }
 
-   public void setOcupation(String ocupation) {
-      this.ocupation = ocupation;
+   public void setOccupation(String occupation) {
+      this.occupation = occupation;
    }
 
    public void setExperience(String experience) {
@@ -122,7 +122,7 @@ public class GetProfileDto {
       this.country = country;
    }
 
-   public void setCertifications(List<String> certifications) {
+   public void setCertifications(List<CertificationDto> certifications) {
       this.certifications = certifications;
    }
 }

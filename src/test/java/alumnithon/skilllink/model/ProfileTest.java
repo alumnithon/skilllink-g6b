@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
+import alumnithon.skilllink.domain.userprofile.model.Certification;
 import alumnithon.skilllink.domain.userprofile.model.Country;
 import alumnithon.skilllink.domain.userprofile.model.Profile;
 import alumnithon.skilllink.domain.userprofile.model.ProfileVisibility;
@@ -36,7 +37,11 @@ public class ProfileTest {
         profile.setContactEmail("contact@test.com");
         profile.setContactPhone("123456789");
         profile.setCountry(country); // Pasar el objeto Country, no un int
-        profile.getCertifications().add("Oracle Certified");
+        Certification certification = new Certification();
+        certification.setTitle("Oracle Certified");
+        certification.setUrl("https://example.com/cert");
+        
+        profile.getCertifications().add(certification);
 
         // Act & Assert
         assertEquals(1L, profile.getId());
@@ -53,6 +58,7 @@ public class ProfileTest {
         assertEquals("123456789", profile.getContactPhone());
         assertEquals(country, profile.getCountry()); // Comparar con el objeto Country
         assertEquals(1, profile.getCertifications().size());
+        assertEquals("Oracle Certified", profile.getCertifications().get(0).getTitle());
         assertNotNull(profile.getCreatedAt());
     }
     @Test

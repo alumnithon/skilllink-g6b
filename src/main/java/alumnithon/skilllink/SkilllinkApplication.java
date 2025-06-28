@@ -9,5 +9,4 @@ public class SkilllinkApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SkilllinkApplication.class, args);
 	}
-
 }
