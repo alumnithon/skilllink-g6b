@@ -10,6 +10,8 @@
   - [Quick Start](#quick-start)
     - [Option 1: Docker (Recommended)](#option-1-docker-recommended)
     - [Option 2: Local Development](#option-2-local-development)
+  - [Screenshots](#screenshots)
+  - [Examples](#examples)
   - [Environment Variables](#environment-variables)
     - [Required](#required)
     - [Optional (with defaults)](#optional-with-defaults)
@@ -84,6 +86,36 @@ export JWT_SECRET=your_jwt_secret
 
 # 3. Run application
 mvn spring-boot:run
+```
+
+## Screenshots
+
+![Swagger UI](./docs/imgs/API-Gestion_Cursos-.png)
+
+## Examples
+
+```bash
+curl -X 'POST' \
+  'http://localhost:8080/api/auth' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "mentor@skilllink.com",
+  "password": "SkillLink123"
+}'
+```
+
+```json
+// Response
+{
+	"user": {
+		"id": 3,
+		"name": "Usuario mentor",
+		"role": "ROLE_MENTOR",
+		"avatar": null
+	},
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJza2lsbGxpbmsiLCJzdWIiOiJtZW50b3JAc2tpbGxsaW5rLmNvbSIsInVpZCI6IjMiLCJleHAiOjE3NTM3MjU3ODF9.anEzFZTka-qg-9lkrFReB7jzmEFkiXUU4s3MG3a6mMQ"
+}
 ```
 
 ## Environment Variables
