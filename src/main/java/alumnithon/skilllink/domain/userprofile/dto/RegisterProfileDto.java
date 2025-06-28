@@ -1,27 +1,33 @@
 package alumnithon.skilllink.domain.userprofile.dto;
 
-import jakarta.validation.constraints.Size;
-import java.util.List;
+import jakarta.validation.constraints.*;
 import java.util.Map;
+import java.util.List;
 
-public class RegistrerProfileDto {
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public class RegisterProfileDto {
     @Size(max = 500, message = "The maximum length of bio is 500 characters")
     private String bio;
     private String location;
-    private String ocupation;
+    private String occupation;
     private String experience;
+    @Schema(description = "Visibility of the profile: public, private", example = "public")
+    @Pattern(regexp = "^(public|private)$", message = "Visibility must be one of: public, private, or restricted")
     private String visibility;
     private List<String> skills;
     private List<String> interests;
+    @Schema(description = "Redes sociales permitidas: linkedin, github, twitter, instagram, facebook, portfolio", example = "{\"linkedin\":\"https://linkedin.com/user\", \"github\":\"https://github.com/user\"}")
     private Map<String, String> socialLinks;
     private String contactEmail;
     private String contactPhone;
-    private Long countryId;
-    private List<String> certifications;
+    private Integer countryId;
+    private List<CertificationDto> certifications;
+  
 
 
-    // ---Getter---
-    public @Size(max = 500, message = "The maximum length of bio is 500 characters") String getBio() {
+    // --- Getters Corregidos ---
+    public String getBio() {
         return bio;
     }
 
@@ -29,15 +35,15 @@ public class RegistrerProfileDto {
         return location;
     }
 
-    public String getOcupation() {
-        return ocupation;
+    public String getOccupation() { // Nombre corregido
+        return occupation;
     }
 
     public String getExperience() {
         return experience;
     }
 
-    public String getVisibility() {
+    public String getVisibility() { // Nombre correcto
         return visibility;
     }
 
@@ -61,17 +67,16 @@ public class RegistrerProfileDto {
         return contactPhone;
     }
 
-    public Long getCountryId() {
+    public Integer getCountryId() {
         return countryId;
     }
 
-    public List<String> getCertifications() {
+    public List<CertificationDto> getCertifications() {
         return certifications;
     }
 
-    //---Setter---
-
-    public void setBio(@Size(max = 500, message = "The maximum length of bio is 500 characters") String bio) {
+    // --- Setters---
+    public void setBio(String bio) {
         this.bio = bio;
     }
 
@@ -79,16 +84,16 @@ public class RegistrerProfileDto {
         this.location = location;
     }
 
-    public void setOcupation(String ocupation) {
-        this.ocupation = ocupation;
+    public void setOccupation(String occupation) { // Nombre corregido
+        this.occupation = occupation;
     }
 
     public void setExperience(String experience) {
         this.experience = experience;
     }
 
-    public void setVisivility(String visivility) {
-        visibility = visivility;
+    public void setVisibility(String visibility) { // Setter CORRECTO
+        this.visibility = visibility.toUpperCase();
     }
 
     public void setSkills(List<String> skills) {
@@ -111,11 +116,11 @@ public class RegistrerProfileDto {
         this.contactPhone = contactPhone;
     }
 
-    public void setCountryId(Long countryId) {
+    public void setCountryId(Integer countryId) {
         this.countryId = countryId;
     }
 
-    public void setCertifications(List<String> certifications) {
+    public void setCertifications(List<CertificationDto> certifications) {
         this.certifications = certifications;
     }
 }
