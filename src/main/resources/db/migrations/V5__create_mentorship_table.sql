@@ -1,4 +1,4 @@
-CREATE TABLE mentorships (
+CREATE TABLE IF NOT EXISTS mentorships (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -11,7 +11,7 @@ CREATE TABLE mentorships (
 );
 
 -- Tabla: preguntas de mentoría
-CREATE TABLE mentorship_questions (
+CREATE TABLE IF NOT EXISTS mentorship_questions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     mentorship_id BIGINT NOT NULL,
     asked_by BIGINT NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE mentorship_questions (
 );
 
 -- Tabla: respuestas de mentoría
-CREATE TABLE mentorship_answers (
+CREATE TABLE IF NOT EXISTS mentorship_answers (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     question_id BIGINT NOT NULL,
     answered_by BIGINT NOT NULL,

@@ -2,9 +2,7 @@ package alumnithon.skilllink.domain.userprofile.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,8 +11,6 @@ import java.util.Map;
 
 @Entity
 @Table(name = "profiles")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Profile {
@@ -80,4 +76,129 @@ public class Profile {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    //---Getter---
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public String getOccupation() {
+        return occupation;
+    }
+
+    public String getExperience() {
+        return experience;
+    }
+
+    public ProfileVisibility getVisibility() {
+        return visibility;
+    }
+
+    public List<String> getSkills() {
+        return skills;
+    }
+
+    public List<String> getInterests() {
+        return interests;
+    }
+
+    public Map<String, String> getSocialLinks() {
+        return socialLinks;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public List<String> getCertifications() {
+        return certifications;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    //---Setter---
+
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setOccupation(String occupation) {
+        this.occupation = occupation;
+    }
+
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
+
+    public void setVisibility(ProfileVisibility visibility) {
+        this.visibility = visibility;
+    }
+
+    public void setSkills(List<String> skills) {
+        this.skills = skills;
+    }
+
+    public void setInterests(List<String> interests) {
+        this.interests = interests;
+    }
+
+    public void setSocialLinks(Map<String, String> socialLinks) {
+        this.socialLinks = socialLinks;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
+    }
+
+    public void setCountry(Country country) {
+        this.country = country;
+    }
+
+    public void setCertifications(List<String> certifications) {
+        this.certifications = certifications;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

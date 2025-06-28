@@ -5,8 +5,6 @@ import lombok.*;
 
 @Entity
 @Table(name = "countries")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -29,4 +27,57 @@ public class Country {
 
     @Column(name = "phone_code", length = 10)
     private String phoneCode;
+
+    //---Getter---
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIso2() {
+        return iso2;
+    }
+
+    public String getIso3() {
+        return iso3;
+    }
+
+    public String getPhoneCode() {
+        return phoneCode;
+    }
+
+    //---Setter---
+
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIso2(String iso2) {
+        this.iso2 = iso2;
+    }
+
+    public void setIso3(String iso3) {
+        this.iso3 = iso3;
+    }
+
+    public void setPhoneCode(String phoneCode) {
+        this.phoneCode = phoneCode;
+    }
 }

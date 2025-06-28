@@ -8,6 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +33,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = "id")
 public class User implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
@@ -130,33 +133,42 @@ public class User implements UserDetails {
         return profile;
     }
 
-    public void setEmail(String email2) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setEmail'");
+    // --- Setter ---
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setName(String name2) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setName'");
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setPassword(String hasedPasword) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setPassword'");
+    public void setEmail(@Email String email) {
+        this.email = email;
     }
 
-    public void setRole(Role roleUser) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setRole'");
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public void setImage_url(String image_url2) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setImage_url'");
+    public void setRole(Role role) {
+        this.role = role;
     }
 
-    public void setEnabled(boolean b) {
-      // TODO Auto-generated method stub
-      throw new UnsupportedOperationException("Unimplemented method 'setEnabled'");
+    public void setImage_url(String image_url) {
+        this.image_url = image_url;
     }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
 }

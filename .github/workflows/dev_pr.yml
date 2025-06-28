@@ -87,7 +87,7 @@ jobs:
           echo "✅ Code quality checks passed"
           echo "✅ Docker container builds and runs successfully"
           echo "👀 Ready for manual review"
-
+           
   # Manual review reminder job
   review_reminder:
     needs: build_and_verify
