@@ -1,6 +1,28 @@
 # SkillLink - Alumni Skill Matching Platform
 
-[![Development PR Checks](https://github.com/alumnithon/skilllink-g6b/actions/workflows/dev_pr.yml/badge.svg)](https://github.com/alumnithon/skilllink-g6b/actions/workflows/dev_pr.yml)[![.github/workflows/maven.yml](https://github.com/alumnithon/skilllink-g6b/actions/workflows/maven.yml/badge.svg)](https://github.com/alumnithon/skilllink-g6b/actions/workflows/maven.yml)
+# Table of Contents
+
+- [SkillLink - Alumni Skill Matching Platform](#skilllink---alumni-skill-matching-platform)
+- [Table of Contents](#table-of-contents)
+- [About This Project](#about-this-project)
+  - [Technology Stack](#technology-stack)
+    - [Architecture](#architecture)
+  - [Quick Start](#quick-start)
+    - [Option 1: Docker (Recommended)](#option-1-docker-recommended)
+    - [Option 2: Local Development](#option-2-local-development)
+  - [Screenshots](#screenshots)
+  - [Examples](#examples)
+  - [Environment Variables](#environment-variables)
+    - [Required](#required)
+    - [Optional (with defaults)](#optional-with-defaults)
+  - [Project Structure](#project-structure)
+  - [API Endpoints](#api-endpoints)
+  - [Development](#development)
+  - [Features](#features)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributing](#contributing)
+
+# About This Project
 
 SkillLink is a Spring Boot application designed to connect alumni and facilitate skill matching
 within professional networks. This platform enables users to showcase their skills, find mentors,
@@ -66,6 +88,36 @@ export JWT_SECRET=your_jwt_secret
 mvn spring-boot:run
 ```
 
+## Screenshots
+
+![Swagger UI](./docs/imgs/API-Gestion_Cursos-.png)
+
+## Examples
+
+```bash
+curl -X 'POST' \
+  'http://localhost:8080/api/auth' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "email": "mentor@skilllink.com",
+  "password": "SkillLink123"
+}'
+```
+
+```json
+// Response
+{
+	"user": {
+		"id": 3,
+		"name": "Usuario mentor",
+		"role": "ROLE_MENTOR",
+		"avatar": null
+	},
+	"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJza2lsbGxpbmsiLCJzdWIiOiJtZW50b3JAc2tpbGxsaW5rLmNvbSIsInVpZCI6IjMiLCJleHAiOjE3NTM3MjU3ODF9.anEzFZTka-qg-9lkrFReB7jzmEFkiXUU4s3MG3a6mMQ"
+}
+```
+
 ## Environment Variables
 
 ### Required
@@ -112,9 +164,9 @@ src/main/java/alumnithon/skilllink/
 
 ## API Endpoints
 
-- **API Documentation:** http://localhost:8080/api/docs/index.html
-- **Health Check:** http://localhost:8080/actuator/health
-- **API Docs JSON:** http://localhost:8080/docs
+- **API Swagger Documentation:** http://skilllink-g6b.onrender.com/api/docs/swager-ui/index.html
+- **Health Check:** http://skilllink-g6b.onrender.com/actuator/health
+- **API Docs JSON:** http://skilllink-g6b.onrender.com/docs
 
 ## Development
 
