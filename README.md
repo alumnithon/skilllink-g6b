@@ -1,6 +1,26 @@
 # SkillLink - Alumni Skill Matching Platform
 
-[![Development PR Checks](https://github.com/alumnithon/skilllink-g6b/actions/workflows/dev_pr.yml/badge.svg)](https://github.com/alumnithon/skilllink-g6b/actions/workflows/dev_pr.yml)[![.github/workflows/maven.yml](https://github.com/alumnithon/skilllink-g6b/actions/workflows/maven.yml/badge.svg)](https://github.com/alumnithon/skilllink-g6b/actions/workflows/maven.yml)
+# Table of Contents
+
+- [SkillLink - Alumni Skill Matching Platform](#skilllink---alumni-skill-matching-platform)
+- [Table of Contents](#table-of-contents)
+- [About This Project](#about-this-project)
+  - [Technology Stack](#technology-stack)
+    - [Architecture](#architecture)
+  - [Quick Start](#quick-start)
+    - [Option 1: Docker (Recommended)](#option-1-docker-recommended)
+    - [Option 2: Local Development](#option-2-local-development)
+  - [Environment Variables](#environment-variables)
+    - [Required](#required)
+    - [Optional (with defaults)](#optional-with-defaults)
+  - [Project Structure](#project-structure)
+  - [API Endpoints](#api-endpoints)
+  - [Development](#development)
+  - [Features](#features)
+  - [Troubleshooting](#troubleshooting)
+  - [Contributing](#contributing)
+
+# About This Project
 
 SkillLink is a Spring Boot application designed to connect alumni and facilitate skill matching
 within professional networks. This platform enables users to showcase their skills, find mentors,
@@ -112,9 +132,9 @@ src/main/java/alumnithon/skilllink/
 
 ## API Endpoints
 
-- **API Documentation:** http://localhost:8080/api/docs/index.html
-- **Health Check:** http://localhost:8080/actuator/health
-- **API Docs JSON:** http://localhost:8080/docs
+- **API Swagger Documentation:** http://skilllink-g6b.onrender.com/api/docs/swager-ui/index.html
+- **Health Check:** http://skilllink-g6b.onrender.com/actuator/health
+- **API Docs JSON:** http://skilllink-g6b.onrender.com/docs
 
 ## Development
 
